@@ -8,7 +8,6 @@ import { csv } from 'd3';
 import data from '../companylist2.csv';
 
 const Container = styled.div`
-  width:100%;
   display:flex;
   align-items:center;
   flex-direction:column;
@@ -34,6 +33,7 @@ const SearchContainer = styled.div`
   top: 20;
   max-height: 300px;
   overflow-y: scroll;
+  z-index: 1000;
 `
 
 const Center = styled.div`
@@ -112,6 +112,7 @@ const SearchResult = styled.div`
   padding: 10px;
   border: solid 1px lightgray;
   cursor: pointer;
+  background: white;
 `
 
 
@@ -149,10 +150,12 @@ function Search(){
       setLoading(true);
       setChartData(null);
       setError(false);
-      setTicker(searchRef.current.value);
+      setTicker(searchRef.current.value.toUpperCase());
       fetchData();
     }
     else{
+      console.log('search is aboutta be');
+      console.log(e.target.value);
       updateSearchResults(e.target.value);
     }
     console.log('value is ' + e.target.value);
@@ -162,11 +165,11 @@ function Search(){
     var i = 0;
     let arr = [];
     var ct = 0;
-    console.log('searching');
+    //console.log(search);
     for (i = 0; i < companies.length; i++){
       if(companies[i]["Symbol"].toLowerCase().includes(search) || companies[i]["Name"].toLowerCase().includes(searchRef.current.value)){
         arr.push([companies[i]["Symbol"], companies[i]["Name"]]);
-        console.log('found name' + companies[i]["Symbol"] + companies[i]["Name"]);
+        // /console.log('found name' + companies[i]["Symbol"] + companies[i]["Name"]);
         ct++;
       }
       if(ct > 10){
