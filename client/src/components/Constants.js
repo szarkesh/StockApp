@@ -4,7 +4,7 @@ export const DARKER = "#15AA77";
 
 export const LIGHTER = "#29DAA6";
 
-export const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT || 'http://localhost:3001';
+export const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT || 'https://stockappexamplebackend.herokuapp.com/';
 
 export const HIGHLIGHT = "#DDFFF2";
 

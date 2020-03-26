@@ -24,7 +24,7 @@ app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60*60*24*1000 }}))
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://stockappexample.herokuapp.com/',
   credentials: true
 }));
 app.use(bodyParser.json());
