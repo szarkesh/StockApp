@@ -2,10 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import BounceLoader from "react-spinners/BounceLoader";
 import MyChart from "./Chart"
+import Chart2 from "./Chart2"
 import FadeIn from 'react-fade-in';
 import ReactTooltip from 'react-tooltip';
 import { csv } from 'd3';
-import data from '../companylist2.csv';
+import data from '../companylist.csv';
+import {PRIMARY, SECONDARY, HIGHLIGHT, API_ENDPOINT} from './Constants'
+import TradingViewWidget from 'react-tradingview-widget';
 
 const Container = styled.div`
   display:flex;
@@ -20,7 +23,7 @@ const SearchBarStyle = styled.input`
   padding-left:20px;
   flex-grow: 1;
   box-shadow:none;
-  border: 3px solid #8623C0;
+  border: 3px solid ${PRIMARY};
   transition:0.2s;
   :focus{
     outline:none;
@@ -30,15 +33,15 @@ const SearchBarStyle = styled.input`
 
 const SearchContainer = styled.div`
   position: absolute;
-  top: 20;
+  top: 80px;
   max-height: 300px;
   overflow-y: scroll;
   z-index: 1000;
 `
 
 const Center = styled.div`
-  dispaly: flex;
-  flex-direction: column;
+  display: flex;
+  flex-direction: row;
   align-items: center;
 `;
 const LineCandleBtns = styled.div`
@@ -54,10 +57,8 @@ const TimeIntervalBtns = styled.div`
   left: 300px;
 `
 
-const AddWatchlistBtn = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 20px;
+const AddWatchlistBtn = styled.span`
+
 `
 
 
@@ -87,24 +88,26 @@ const Flexbox = styled.div`
 `
 
 const MyButton = styled.button`
-  outline: none;
-  border: none;
-  font-size: 20px;
-  background: none;
+  font-size: 30px;
+  color: white;
+  width:50px;
+  height:50px;
+  border-radius: 50%;
   cursor: pointer;
-  color: ${props => props.active ? "#018FFB" : "#999999"};
+  border: solid 2px ${PRIMARY};
+  background: ${SECONDARY};
 `
 
 const SearchWatchlistBtn = styled.button`
-  border: solid 2px #8623C0;
-  background: #AA35D5;
+  border: solid 2px ${PRIMARY};
+  background: ${SECONDARY};
   color: white;
   outline: none;
   padding: 10px;
   font-size: 20px;
   border-radius: 100px;
   cursor: pointer;
-  margin: 0px 10px;
+  margin: 0px 5px;
 `
 
 const SearchResult = styled.div`
@@ -113,16 +116,41 @@ const SearchResult = styled.div`
   border: solid 1px lightgray;
   cursor: pointer;
   background: white;
+  :hover{
+    background: ${HIGHLIGHT}
+  }
 `
 
 
-function Search(){
+function Search({user}){
+
+  function useOutsideAlerter(ref) {
+    React.useEffect(() => {
+
+      function handleClickOutside(event) {
+        if (ref.current && !ref.current.contains(event.target)) {
+          setResults([]);
+        }
+      }
+      // Bind the event listener
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        // Unbind the event listener on clean up
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  }
+
 
   React.useEffect(() => {
     csv(data).then(data=>{
       console.log(data);
       setCompanies(data);
     })
+    console.log(document.cookie);
+    fetch(`${API_ENDPOINT}/api/watchlist`,{
+      credentials:'include'
+    }).then((data)=>data.json()).then((res)=>setWatchlist(res.watchlist));
   }, []);
 
   let [chartType, setChartType] = React.useState('line');
@@ -136,7 +164,7 @@ function Search(){
   let [chartData, setChartData] = React.useState(null);
   let [error, setError] = React.useState(null);
 
-  let [ticker, setTicker] = React.useState(null);
+  let [ticker, setTicker] = React.useState("");
 
   let [watchlist, setWatchlist] = React.useState([]);
 
@@ -144,14 +172,17 @@ function Search(){
 
   let [companies, setCompanies] = React.useState([]);
 
+  let wrapperRef = React.useRef(null);
+  useOutsideAlerter(wrapperRef);
+
 
   let handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      setLoading(true);
+      //setLoading(true);
       setChartData(null);
       setError(false);
       setTicker(searchRef.current.value.toUpperCase());
-      fetchData();
+      //fetchData();
     }
     else{
       console.log('search is aboutta be');
@@ -204,14 +235,25 @@ function Search(){
   let searchFor = (str) => {
     searchRef.current.value = str;
     setResults([]);
-    setLoading(true);
+    //setLoading(true);
+    setTicker(str);
     setChartData(null);
     setError(false);
-    fetchData();
+    //fetchData();
   }
 
   let addToWatchlist = (elem) => {
-    setWatchlist([...watchlist, elem.toUpperCase()]);
+    let ans = elem.toUpperCase();
+    setWatchlist([...watchlist, ans]);
+    fetch(`${API_ENDPOINT}/api/watchlist/add`, {
+      method:'post',
+      credentials:'include',
+      headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+      body: JSON.stringify({ticker:elem})
+    });
     console.log("added " + elem + "to watch list");
   }
 
@@ -221,13 +263,34 @@ function Search(){
       setWatchlist([...watchlist.slice(0,index),
           ...watchlist.slice(index+1,watchlist.length)]);
     }
+    fetch(`${API_ENDPOINT}/api/watchlist/remove`, {
+      method:'post',
+      credentials:'include',
+      headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+      body: JSON.stringify({ticker:elem})
+    });
   }
 
   return (
     <Container>
       <Flexbox>
-          <Center>
-            <SearchBarStyle autoFocus ref={searchRef} placeholder="Search for any stock..." onChange={(e)=>updateSearchResults(e)} onKeyDown={handleKeyDown}/>
+          <Center ref={wrapperRef}>
+            {ticker && <AddWatchlistBtn>
+              {!(watchlist.indexOf(ticker) > -1) ?
+                    <>
+                      <MyButton data-tip="React-tooltip" onClick={()=>addToWatchlist(ticker)}>+</MyButton>
+                      <ReactTooltip place="bottom" type="dark" effect="solid">Add to watchlist</ReactTooltip>
+                    </> :
+                  <>
+                    <MyButton onClick={()=>removeFromWatchlist(ticker)}>-</MyButton>
+                    <ReactTooltip place="bottom" type="dark" effect="solid">Remove from watchlist</ReactTooltip>
+                  </>
+              }
+            </AddWatchlistBtn>}
+            <SearchBarStyle autoFocus ref={searchRef} placeholder="Search for any stock..." onClick={(e)=>updateSearchResults(e)} onChange={(e)=>updateSearchResults(e)} onKeyDown={handleKeyDown}/>
             <SearchContainer>
             {results.map((item => <SearchResult onClick={()=>searchFor(item[0])}>
                                       <div>{item[1]}</div>
@@ -237,20 +300,10 @@ function Search(){
           </Center>
         {watchlist.map((item) => <SearchWatchlistBtn onClick={()=>searchFor(item)}>{item}</SearchWatchlistBtn>)}
       </Flexbox>
-      {loading && <LoaderContainer><BounceLoader color={"#8D28BE"}/></LoaderContainer>}
-      {chartData && <FadeIn>
+      {loading && <LoaderContainer><BounceLoader color={PRIMARY}/></LoaderContainer>}
+      {/*chartData && <FadeIn>
                         <div style={{position:"relative"}}>
-                        <MyChart chartData={chartData} chartType={chartType}/>
-                        <LineCandleBtns>
-                          <>
-                            <MyButton active={chartType==='candlestick'} onClick={()=>setChartType('candlestick')}><i className="fas fa-chart-bar"></i></MyButton>
-                            <ReactTooltip id="line" place="bottom" type="dark" effect="solid">Candlestick view</ReactTooltip>
-                          </>
-                          <>
-                            <MyButton active={chartType==='line'} onClick={()=>setChartType('line')}><i className="fas fa-chart-line"></i></MyButton>
-                            <ReactTooltip id="candle" place="bottom" type="dark" effect="solid">Candlestick view</ReactTooltip>
-                          </>
-                        </LineCandleBtns>
+                        <Chart2 style={{width:"80%"}} chartData={chartData}/>
                         <TimeIntervalBtns>
                           <MyButton active={chartInterval===0} onClick={()=>updateChartInterval(0)}>1D</MyButton>
                           <MyButton active={chartInterval===1} onClick={()=>updateChartInterval(1)}>1W</MyButton>
@@ -275,7 +328,8 @@ function Search(){
                         {console.log(ticker)}
                         {console.log(watchlist.indexOf(ticker))}
 
-                    </FadeIn>}
+                    </FadeIn>*/}
+      {ticker && <TradingViewWidget symbol={ticker} />}
       {error && <Err><i className="fas fa-exclamation-triangle"></i>Stock not found</Err>}
     </Container>
   );

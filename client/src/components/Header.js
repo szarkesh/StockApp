@@ -1,10 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
+import {PRIMARY, SECONDARY} from './Constants';
 
 
 const Header = styled.div`
-  background: linear-gradient(#8D28BE, #AB36A5);
-  height: 100px;
+  background: linear-gradient(${PRIMARY}, ${SECONDARY});
+  height: 100px !important;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -13,7 +14,6 @@ const Header = styled.div`
   font-weight:bold;
   color: white;
   font-size: 30px;
-  margin-bottom:20px;
 `;
 
 export default Header;

@@ -11,9 +11,36 @@ router.get('/user/getUsers', function(_, res, next) {
   })
 })
 
-router.get('/users/add', function(req, res, next) {
-  console.log("Welcome to the backend");
-  console.log("created user");
+router.get('/add', function(req, res, next) {
+  res.send("welcome to the backend")
+})
+
+router.get('/watchlist', function(req, res, next){
+  User.findOne({user: req.session.user}, 'watchlist', function(err, person) {
+    if(err) console.log(err);
+    if(person){
+        res.send(JSON.stringify({watchlist: person.watchlist}))
+    }
+    else{
+      res.send(JSON.stringify({watchlist: []}))
+    }
+  })
+})
+
+router.post('/watchlist/add', function(req, res, next){
+  User.update({user: req.session.user}, { $push: {watchlist: req.body.ticker}}, function(err, person){
+    if(err) res.send("Error");
+    if(!err) res.send("Success");
+  })
+})
+
+router.post('/watchlist/remove', function(req, res, next){
+  User.update({user: req.session.user}, { $pull: {watchlist: req.body.ticker}}, function(err, person){
+    console.log('removed');
+    console.log(person.watchlist);
+    if(err) res.send("Error");
+    if(!err) res.send("Success");
+  })
 })
 //
 // router.post('/questions/answer', function(req, res, next) {

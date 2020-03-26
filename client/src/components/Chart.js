@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 //import { Chart } from "react-charts"
 import Chart from "react-apexcharts";
+import {PRIMARY} from "./Constants";
 
 const ChartContainer = styled.div`
   width:100%;
@@ -21,11 +22,11 @@ const options = {
     show: true,
     curve: 'smooth',
     lineCap: 'butt',
-    colors: ['#8D28BE'],
+    colors: [PRIMARY],
     width: 2,
     dashArray: 0,
   },
-  colors: ['#8D28BE']
+  colors: [PRIMARY]
 }
 
 
@@ -34,21 +35,21 @@ function MyChart({chartType, chartData}){
   // return <ChartContainer>{data}</ChartContainer>
 
 
-    console.log(chartData);
-
-    console.log(chartData["Time Series (5min)"]);
+    // console.log(chartData);
+    //
+    // console.log(chartData["Time Series (5min)"]);
 
   let graphPoints = Object.entries(chartData[Object.keys(chartData)[1]]).map((e, index) =>
   {
-    console.log(e);
+    // console.log(e);
     let rObj = {}
     rObj["x"] = e[0];
     rObj["y"] = [parseFloat(Object.values(e[1])[0]), parseFloat(Object.values(e[1])[1]), parseFloat(Object.values(e[1])[2]),parseFloat(Object.values(e[1])[3])];
     return rObj;
   });
 
-  console.log("graph points is ");
-  console.log(graphPoints);
+  // console.log("graph points is ");
+  // console.log(graphPoints);
 
   const data = [{
     name:"Stock Price",

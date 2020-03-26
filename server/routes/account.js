@@ -1,60 +1,79 @@
 var express = require('express')
 var router = express.Router()
-var User = require('../models/user.js')
-var isAuthenticated = require('../middlewares/isAuthenticated.js');
+
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+var User = require('../models/user-model.js')
 
 
-
-router.get('/signup', function(req, res) {
-  res.render('signup', {layout: false})
-});
-
-router.get('/login', function(req, res) {
-  res.render('login', {layout: false})
-});
-// router.get('/logout', function(req, res) {
-//   ...
-// })
 router.post('/signup', function(req, res, next) {
-  console.log('hello!')
-  let user = new User({
-    username: req.body.username,
-    password: req.body.password
-  })
-  User.find({username: req.body.username}, function(err, result) {
+
+  User.find({user: req.body.username}, function(err, result) {
     if (err) {
-      next(err);
+      res.send(JSON.stringify("Signup failed. Try again later?"))
     } else if (result.length !== 0) {
-      next(new Error('Duplicate User'));
+      res.send(JSON.stringify("Duplicate User"))
     } else {
-      user.save(function(err) {
-        if (!err) {
-          res.redirect('/account/login')
-        } else {
-          next(err)
-        }
+      bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        let user = new User({
+          user: req.body.username,
+          email: req.body.email,
+          first: req.body.firstname,
+          last: req.body.lastname,
+          pass: hash,
+        })
+
+        user.save(function(err) {
+          if (!err) {
+            req.session.user = req.body.username;
+            console.log('success');
+            res.send(JSON.stringify("success"));
+          } else {
+            res.send(JSON.stringify("Signup failed. Try again later?"));
+          }
+        })
       })
     }
   })
 
 })
 router.post('/login', function(req, res, next) {
-  User.find({username: req.body.username, password: req.body.password}, function(err, results) {
-    console.log(results);
-    if (err) {
-      return next(err);
-    } else if (results.length === 0) {
-      return next(new Error('User not found'));
-    } else {
-      req.session.user = results[0].username;
-      res.redirect('/');
+  console.log('trying to log in with' + req.body.username + ' ' + req.body.password);
+  User.findOne({user: req.body.username}, function(err, user) {
+    if(!user){
+      res.send(JSON.stringify('failure'));
+    }
+    else {
+      bcrypt.compare(req.body.password, user.pass, function(err, result) {
+        console.log('result is' + result);
+        if(result === true){
+          req.session.user = req.body.username;
+          console.log('made session ' + req.session.user);
+          res.send(JSON.stringify('success'));
+        }
+        else{
+          res.send(JSON.stringify('failure'));
+        }
+      })
     }
   })
 })
 
-router.get('/logout', isAuthenticated, function(req, res, next) {
-  req.session = null;
-  res.redirect('/');
+router.post('/logout', function(req, res, next){
+  req.session.user = null;
+  res.send(JSON.stringify("success"));
 })
+
+router.get('/current', function(req, res, next){
+  console.log('curr user is ' + req.session.user);
+  var currUser = req.session.user ? req.session.user : "no user found";
+  res.send(JSON.stringify(currUser))
+});
+//
+// router.get('/logout', isAuthenticated, function(req, res, next) {
+//   req.session = null;
+//   res.redirect('/');
+// })
 
 module.exports = router
