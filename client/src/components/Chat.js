@@ -141,22 +141,27 @@ function Chat({user}){
   }
   React.useEffect(()=>{
     getAllChats();
+    setInterval(()=>{
+      getChat(activeChat)
+    }, 1000)
   },[])
 
   let getChat = (id) => {
-    fetch(`${API_ENDPOINT}/chat/getChat`, {
-      method:'post',
-      credentials:'include',
-      headers: {
-      'Content-Type': 'application/json'
-      },
-      body:JSON.stringify({_id: id})
-    }).then(
-      (res)=>res.json()).then((chat)=>{
-        console.log(chat);
-        setActiveChat(chat._id)
-        setActiveData(chat);
-      });
+    if(id){
+      fetch(`${API_ENDPOINT}/chat/getChat`, {
+        method:'post',
+        credentials:'include',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({_id: id})
+      }).then(
+        (res)=>res.json()).then((chat)=>{
+          console.log(chat);
+          setActiveChat(chat._id)
+          setActiveData(chat);
+        });
+    }
   }
 
   let sendChat = (chatId, message) => {

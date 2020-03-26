@@ -6,6 +6,7 @@ const apiRoutes = require('./routes/api.js');
 const accountRoutes = require('./routes/account.js')
 const chatRoutes = require('./routes/chat.js')
 const mongoose = require('mongoose')
+var os = require('os');
 var User = require('./models/user-model.js')
 
 const app = express()
@@ -19,12 +20,16 @@ mongoose
 
 const db = mongoose.connection;
 
+const isLocal = os.hostname().indexOf('local') > -1;
 
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60*60*24*1000 }}))
+
+app.use(session({ secret: 'keyboard cat', cookie: {sameSite: 'Strict', secure:!isLocal, maxAge: 60*60*24*1000 }}))
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
 app.use(cors({
-  origin: 'https://stockappexample.herokuapp.com',
+  origin: isLocal ? 'http://localhost:3000':'https://stockappexample.herokuapp.com',
   credentials: true
 }));
 app.use(bodyParser.json());
