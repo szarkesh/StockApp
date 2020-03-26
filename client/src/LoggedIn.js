@@ -8,7 +8,7 @@ import Home from './components/Home'
 import Chat from './components/Chat'
 import FadeIn from 'react-fade-in'
 import {Button, Popover, OverlayTrigger} from 'react-bootstrap';
-import TradingViewWidget from 'react-tradingview-widget';
+import {API_ENDPOINT} from './components/Constants'
 
 const LeftBarContainer = styled.div`
   display: flex;
@@ -70,7 +70,7 @@ const BottomBarContainer = styled.div`
 `
 
 const logout = () => {
-  fetch("http://localhost:3001/user/logout",{method:"post", credentials:"include"}).then((data)=>data.json()).then((res)=>{
+  fetch(`${API_ENDPOINT}/user/logout`,{method:"post", credentials:"include"}).then((data)=>data.json()).then((res)=>{
     if(res==="success"){
       window.location.href ="/signup"
     }
@@ -102,7 +102,7 @@ function LoggedIn() {
 
   React.useEffect(() => {
 
-    fetch(`http://localhost:3001/user/current`,{
+    fetch(`${API_ENDPOINT}/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
       if(res==="no user found"){
