@@ -124,6 +124,8 @@ function Chat({user}){
 
   let [newChat, setNewChat] = React.useState(false);
 
+  let [counter, setCounter] = React.useState(0);
+
   let inputRef = React.useRef(null);
 
   let getAllChats = () => {
@@ -136,12 +138,26 @@ function Chat({user}){
   }
   React.useEffect(()=>{
     getAllChats();
-    setInterval(()=>{
-      getChat(activeChat)
-    }, 1000)
-  },[])
+}, []);
+  React.useEffect(()=>{
+    const interval = setInterval(() => {
+      getChat(activeChat);
+    }, 1000);
 
+    return () => {
+      clearInterval(interval);
+    };
+})
+
+  React.useEffect(()=>{
+      console.log(counter);
+  },[counter]);
+  let refreshActiveChat = () => {
+      console.log('refreshing' + activeChat)
+      getChat(activeChat)
+  }
   let getChat = (id) => {
+    console.log('getting ' + id )
     if(id){
       fetch(`${API_ENDPOINT}/chat/getChat`, {
         method:'post',
