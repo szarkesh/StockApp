@@ -187,9 +187,9 @@ function Signup(){
       }).then((data)=>data.json()).then((res)=>{
         if(res!=="failure"){
           window.location.href="/";
+          console.log('user is ' + JSON.stringify(res));
         }
         else{
-          console.log('user is ' + JSON.stringify(res));
           setloginError(true);
         }
       });
