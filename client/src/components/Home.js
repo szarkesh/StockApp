@@ -138,7 +138,7 @@ function Home(){
             {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
           </WatchList>
         </div>
-        <Flex><TradingViewWidget width="550"symbol="AAPL"/></Flex>
+        <Flex><TradingViewWidget width="550"symbol="SPY"/></Flex>
         <Flex><Padded id="tickers"></Padded> <div style={{height:"300px !important"}} id="calendar"></div></Flex>
       </Grid>
     </Container>

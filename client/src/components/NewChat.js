@@ -1,11 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import Header from './Header'
 import {PRIMARY, SECONDARY, HIGHLIGHT, API_ENDPOINT } from './Constants'
 
-const chatBubble = ({sender, text}) => (
-  <div>text</div>
-)
 
 const SearchResult = styled.div`
   color: black;
@@ -100,8 +96,6 @@ function NewChat({getAllChats, setNewChat, setActiveChat}){
       <div>
         {results.map((item, idx) => <SearchResult key={idx} onClick={()=>(setUsernames([...usernames, item]), setResults([]), searchRef.value = "", searchRef.focus())}>{item.user}</SearchResult>)}
       </div>
-
-
     </div>
   )
 

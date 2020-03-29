@@ -189,6 +189,7 @@ function Signup(){
           window.location.href="/";
         }
         else{
+          console.log('user is ' + JSON.stringify(res));
           setloginError(true);
         }
       });

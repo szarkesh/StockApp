@@ -97,11 +97,6 @@ const ChatViewContainer = styled.div`
   height:calc(100% - 100px);
   overflow-y: scroll;
 `
-
-const chatBubble = ({sender, text}) => (
-  <div>text</div>
-)
-
 function Chat({user}){
 
 

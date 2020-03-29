@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import styled from 'styled-components';
 import Search from './components/Search'
@@ -21,11 +20,6 @@ const LeftBarContainer = styled.div`
   background: #EEEEEE;
 `
 
-
-
-const LeftSpace = styled(LeftBarContainer)`
-  position: relative
-`
 
 const LeftBarItem = styled.div`
   padding:20px 0px;
@@ -55,9 +49,6 @@ flex-direction: row;
 height:100vh;
 flex-wrap: nowrap`
 
-const SearchIconStyle = styled.i`
-`;
-
 const BottomBarContainer = styled.div`
   position: fixed;
   bottom: 0;
@@ -84,12 +75,6 @@ const logout = () => {
 function LoggedIn() {
   const [tab, setTab] = React.useState(1);
   const [user, setUser] = React.useState("");
-
-  const [dimensions, setDimensions] = React.useState({
-    height: window.innerHeight,
-    width: window.innerWidth
-  })
-
   const popover =  (
     <Popover id="popover-basic">
       <Popover.Title as="h3">Logged in as <b>{user}</b></Popover.Title>
@@ -113,22 +98,14 @@ function LoggedIn() {
         setUser(res);
       }
     });
-
-    function handleResize() {
-      setDimensions({
-        height: window.innerHeight,
-        width: window.innerWidth
-      })
-    }
-    window.addEventListener('resize', handleResize)
   })
 
   const leftBar =
   (<LeftBarContainer>
-    <LeftBarItem active={tab==0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab==1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab==2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab==3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
+    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
+    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
+    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
+    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
 
     <OverlayTrigger trigger="click" placement="right" overlay={popover}>
       <AccountButton><i class="fas fa-user-circle"></i></AccountButton>
@@ -137,22 +114,11 @@ function LoggedIn() {
 
   const bottomBar =
   (<BottomBarContainer>
-    <LeftBarItem active={tab==0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab==1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab==2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab==3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
+    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
+    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
+    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
+    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
   </BottomBarContainer>);
-
-  let renderSwitch = (a) => {
-    switch(a){
-      case 0:
-        return <FadeIn><Search/></FadeIn>
-      case 1:
-        return <FadeIn><Home/></FadeIn>
-      default:
-        return null;
-    }
-  }
 
 
   return (
