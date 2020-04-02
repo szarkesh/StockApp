@@ -6,7 +6,7 @@ import { PRIMARY, HIGHLIGHT, LIGHTER, DEFAULTSHADOW, API_ENDPOINT } from './Cons
 
 const Container = styled.div`
   align-items: center;
-  height: 100vh;
+  height: 100vh !important;
 `;
 
 const Flex = styled.div`
@@ -111,7 +111,6 @@ function Chat({user}){
       <div>
         {data && data.content.map((item, idx) => <ChatBubbleContainer sent={user===item.sender}><ChatBubble sent={user===item.sender} key={idx}>{item.content}</ChatBubble></ChatBubbleContainer>)}
       </div>
-      <ChatInput ref={inputRef} onKeyDown={checkSubmit} autoFocus placeholder="Type away..."/>
     </ChatViewContainer>
   )
 
@@ -126,7 +125,7 @@ function Chat({user}){
 
   let [counter, setCounter] = React.useState(0);
 
-  let inputRef = React.useRef(null);
+  let inputRef = React.useRef();
 
   let getAllChats = () => {
     fetch(`${API_ENDPOINT}/chat/allChats`, {
@@ -139,6 +138,7 @@ function Chat({user}){
   React.useEffect(()=>{
     getAllChats();
 }, []);
+
   React.useEffect(()=>{
     const interval = setInterval(() => {
       getChat(activeChat);
@@ -149,15 +149,12 @@ function Chat({user}){
     };
 })
 
-  React.useEffect(()=>{
-      console.log(counter);
-  },[counter]);
   let refreshActiveChat = () => {
       console.log('refreshing' + activeChat)
       getChat(activeChat)
   }
   let getChat = (id) => {
-    console.log('getting ' + id )
+    setNewChat(false);
     if(id){
       fetch(`${API_ENDPOINT}/chat/getChat`, {
         method:'post',
@@ -168,7 +165,6 @@ function Chat({user}){
         body:JSON.stringify({_id: id})
       }).then(
         (res)=>res.json()).then((chat)=>{
-          console.log(chat);
           setActiveChat(chat._id)
           setActiveData(chat);
         });
@@ -201,6 +197,7 @@ function Chat({user}){
         </LeftHalf>
         <RightHalf>
           {activeChat && <ChatView data={activeData}/>}
+          {activeChat && <ChatInput ref={inputRef} onKeyDown={checkSubmit} autoFocus placeholder="Type away..."/>}
           {newChat && <NewChat getAllChats={getAllChats} setActiveChat={setActiveChat} setNewChat={setNewChat}/>}
         </RightHalf>
       </Flex>
