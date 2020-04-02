@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import Header from './Header'
 import NewChat from './NewChat'
 import { PRIMARY, HIGHLIGHT, LIGHTER, DEFAULTSHADOW, API_ENDPOINT } from './Constants'
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import ChatInput from './ChatInput';
 
 const Container = styled.div`
   align-items: center;
@@ -13,20 +15,20 @@ const Flex = styled.div`
   display: flex;
   width:100%;
   grid-template-columns: 400px 400px;
-  height: 100vh;
+  height:calc(100vh - 100px);
 `
 
 const LeftHalf = styled.div`
   flex-basis: 300px;
   position: relative;
-  height: calc(100% - 100px);
+  height: 100%;
   overflow-y: scroll;
   border-right: 1px solid #DDDDDD;
 `
 
 const RightHalf = styled.div`
-  height: calc(100% - 100px);
-  margin: 20px;
+  height: 100%;
+  padding: 20px 0px 20px 0px;
   position: relative;
   flex-grow: 1;
 `
@@ -44,18 +46,7 @@ const PreviewStyle = styled.div`
   ${props=>props.active && "background:#F2F2F2;"}
 `
 
-const ChatInput = styled.input`
-  border-radius: 100px;
-  border: 1px solid #999999;
-  padding: 5px 10px;
-  :focus{
-    outline: none;
-    border: 2px solid ${PRIMARY};
-  }
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-`;
+
 
 const FloatingButton = styled.button`
   border-radius: 50%;
@@ -94,23 +85,28 @@ const ChatBubbleContainer = styled.div`
 `;
 
 const ChatViewContainer = styled.div`
-  height:calc(100% - 100px);
+  max-height: calc(100vh - 180px);
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
 `
 function Chat({user}){
 
-
-  const checkSubmit = (e) => {
-    if(e.keyCode === 13){ // if enter
-      sendChat(activeChat, e.target.value);
-    }
-  }
-
   const ChatView = ({data}) => (
-    <ChatViewContainer>
-      <div>
-        {data && data.content.map((item, idx) => <ChatBubbleContainer sent={user===item.sender}><ChatBubble sent={user===item.sender} key={idx}>{item.content}</ChatBubble></ChatBubbleContainer>)}
-      </div>
+    <ChatViewContainer ref={currChatRef}>
+        {data && data.content.slice(0).reverse().map((item, idx) =>
+            <ChatBubbleContainer sent={user===item.sender}>
+                <OverlayTrigger
+                    placement={user===item.sender ? 'left' : 'right'}
+                    overlay={
+                      <Tooltip id={`tooltip`}>
+                        <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
+                      </Tooltip>
+                        }
+                  >
+                <ChatBubble sent={user===item.sender} key={idx}>{item.content}</ChatBubble>
+                </OverlayTrigger>
+            </ChatBubbleContainer>)}
     </ChatViewContainer>
   )
 
@@ -123,9 +119,12 @@ function Chat({user}){
 
   let [newChat, setNewChat] = React.useState(false);
 
-  let [counter, setCounter] = React.useState(0);
 
-  let inputRef = React.useRef();
+  let [scrollTop, setScrollTop] = React.useState(0);
+
+  let [mustScrollDown, setMustScrollDown] = React.useState(false);
+
+  let currChatRef = React.useRef();
 
   let getAllChats = () => {
     fetch(`${API_ENDPOINT}/chat/allChats`, {
@@ -141,7 +140,9 @@ function Chat({user}){
 
   React.useEffect(()=>{
     const interval = setInterval(() => {
-      getChat(activeChat);
+      if(activeChat){
+        getChat(activeChat);
+      }
     }, 1000);
 
     return () => {
@@ -149,11 +150,19 @@ function Chat({user}){
     };
 })
 
+    React.useEffect(()=>{
+        if(scrollTop!=null && currChatRef.current){
+            currChatRef.current.scrollTop = scrollTop;
+            setScrollTop(null);
+        }
+    },[activeData])
+
   let refreshActiveChat = () => {
       console.log('refreshing' + activeChat)
       getChat(activeChat)
   }
   let getChat = (id) => {
+    console.log(activeData)
     setNewChat(false);
     if(id){
       fetch(`${API_ENDPOINT}/chat/getChat`, {
@@ -165,8 +174,17 @@ function Chat({user}){
         body:JSON.stringify({_id: id})
       }).then(
         (res)=>res.json()).then((chat)=>{
-          setActiveChat(chat._id)
-          setActiveData(chat);
+          if(id!=activeChat){
+              setActiveChat(chat._id)
+              setActiveData(chat);
+          }
+          else if(chat.content.length>0 && (Date.now() - (new Date(chat.content[chat.content.length-1].time))) < 1001){
+              if(currChatRef.current && currChatRef.current.scrollTop!==0){
+                  console.log('setting saving scroll heihgt');
+                  setScrollTop(currChatRef.current.scrollTop);
+              }
+              setActiveData(chat);
+          }
         });
     }
   }
@@ -180,7 +198,10 @@ function Chat({user}){
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({_id: chatId, "messageContent": message})
-    }).then((res)=>res.json()).then((data)=>getChat(chatId));
+  }).then((res)=>res.json()).then((data)=>{
+      setMustScrollDown(true);
+      getChat(chatId);
+  });
   }
 
   let createNewChat = () =>{
@@ -192,13 +213,15 @@ function Chat({user}){
       <Header>Chat</Header>
       <Flex>
         <LeftHalf>
-            {chats.map((item, idx) => <PreviewStyle key={idx} active={activeChat === item._id} onClick={()=>getChat(item["_id"])}>{item["users"].join(', ')}</PreviewStyle>)}
+            {chats.slice(0).reverse().map((item, idx) => <PreviewStyle key={idx} active={activeChat === item._id} onClick={()=>getChat(item["_id"])}>{item["users"].join(', ')}</PreviewStyle>)}
             <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
         </LeftHalf>
         <RightHalf>
-          {activeChat && <ChatView data={activeData}/>}
-          {activeChat && <ChatInput ref={inputRef} onKeyDown={checkSubmit} autoFocus placeholder="Type away..."/>}
-          {newChat && <NewChat getAllChats={getAllChats} setActiveChat={setActiveChat} setNewChat={setNewChat}/>}
+          <div style={{padding:"10px"}}>
+              {activeChat && <ChatView data={activeData}/>}
+              {activeChat && <ChatInput activeChat={activeChat} sendChat={sendChat}/>}
+              {newChat && <NewChat getChat={getChat} chats={chats} getAllChats={getAllChats} setActiveChat={setActiveChat} setNewChat={setNewChat}/>}
+          </div>
         </RightHalf>
       </Flex>
     </Container>

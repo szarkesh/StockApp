@@ -2,6 +2,22 @@ import React from 'react';
 import styled from 'styled-components';
 import {PRIMARY, SECONDARY, HIGHLIGHT, API_ENDPOINT } from './Constants'
 
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].user === obj.user) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function eqSet(as, bs) {
+    if (as.size !== bs.size) return false;
+    for (var a of as) if (!bs.has(a)) return false;
+    return true;
+}
 
 const SearchResult = styled.div`
   color: black;
@@ -53,7 +69,7 @@ const Flex = styled.div`
   flex-wrap: nowrap;
 `
 
-function NewChat({getAllChats, setNewChat, setActiveChat}){
+function NewChat({chats, getAllChats, getChat, setNewChat, setActiveChat}){
 
   const [usernames, setUsernames] = React.useState([]);
   const [results, setResults] = React.useState([]);
@@ -64,11 +80,20 @@ function NewChat({getAllChats, setNewChat, setActiveChat}){
     fetch(`${API_ENDPOINT}/chat/getUsername?username=${e.target.value}`,{
       credentials:'include',
     }).then((res)=>res.json()).then((data)=>{
-      setResults(data);
+      console.log(usernames);
+      console.log(results);
+      setResults(data.filter(user=>!containsObject(user, usernames)));
     })
   }
 
   const createChat = () => {
+    for(var i = 0; i < chats.length; i++){ // checking if it is actually new
+        if(eqSet(new Set(chats[i].users), new Set(usernames.map((user)=>user.user)))){
+            console.log('created an existing chat');
+            getChat(chats[i]._id)
+            return
+        }
+    }
     console.log('creating chat')
     fetch(`${API_ENDPOINT}/chat/create`,{
       credentials:'include',
