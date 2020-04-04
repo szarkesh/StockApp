@@ -123,7 +123,7 @@ function LoggedIn() {
 
   return (
     <Container>
-      {window.innerWidth > 800 ? leftBar : bottomBar}
+      {window.innerWidth > 300 ? leftBar : bottomBar}
       <div style={{flexGrow: "1", height:"100vh", overflowY:"scroll"}}>
         {tab===0 && <FadeIn><Search user={user}/></FadeIn>}
         {tab===1 && <FadeIn><Home/></FadeIn>}

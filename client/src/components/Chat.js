@@ -1,9 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from './Header'
+import ChatMessages from './ChatMessages'
 import NewChat from './NewChat'
 import { PRIMARY, HIGHLIGHT, LIGHTER, DEFAULTSHADOW, API_ENDPOINT } from './Constants'
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {dot1Key, dot2Key, dot3Key} from './KeyFrames'
 import ChatInput from './ChatInput';
 
 const Container = styled.div`
@@ -32,13 +34,23 @@ const RightHalf = styled.div`
   position: relative;
   flex-grow: 1;
 `
+
+const ChatViewContainer = styled.div`
+  max-height: calc(100vh - 180px);
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
+`
+
 const PreviewStyle = styled.div`
   border-bottom: 1px solid #DDDDDD;
-  height:80px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  height:80px;
   justify-content: start;
-  padding: 30px;
   cursor: pointer;
   :hover{
     background: ${props=>props.active ? "#F2F2F2" : HIGHLIGHT};
@@ -46,7 +58,27 @@ const PreviewStyle = styled.div`
   ${props=>props.active && "background:#F2F2F2;"}
 `
 
+const TypingPreview = styled.div`
+    background: #D8D7D7;
+    height: 25px !important;
+    width: 40px !important;
+    position: relative;
+    border-radius: 20px 20px 20px 3px;
+    margin-bottom: 10px;
+    position: relative;
+    margin-left: 10px;
+`
 
+const Dot = styled.div`
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #B1B0B0;
+    border-radius: 50%;
+    left: ${props=>props.left};
+    bottom: 9px;
+    animation: ${props=>props.kf} 1s ease-in-out 0s infinite;
+`
 
 const FloatingButton = styled.button`
   border-radius: 50%;
@@ -69,65 +101,22 @@ const FloatingButton = styled.button`
   }
 `
 
-const ChatBubble = styled.div`
-  background: ${props=>props.sent ? PRIMARY : "#F1F0F0"};
-  max-width: 70%;
-  color: ${props=>props.sent ? 'white' : 'black'};
-  padding: 5px 10px;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 1px;
-  margin-bottom: ${props=>props.timePassed ? '10px' : '1px'};
-  border-radius: ${props=>props.sent ? "10px 10px 3px 10px" : "10px 10px 10px 3px"};
-`;
-
-const ChatBubbleContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: ${props=>props.sent ? 'flex-end' : 'flex-start'};
-`;
-
-const ChatViewContainer = styled.div`
-  max-height: calc(100vh - 180px);
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column-reverse;
+const ChatName = styled.div`
+    display: block;
+    font-weight: ${props=>props.seen ? 'normal' : 'bold'}
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
-const CenteredText = styled.div`
-    width: 100%;
-    text-align: center;
-    color: #AAAAAA;
-    font-size: 13px;
-    font-weight: bold;
+
+const LastMsg = styled.div`
+    font-size: 12px;
+    color: #BBBBBB;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
+
 function Chat({user}){
-
-  const ChatView = ({data}) => (
-    <ChatViewContainer ref={currChatRef}>
-        {data && data.content.slice(0).reverse().map((item, idx, arr) =>
-            <>
-                <ChatBubbleContainer sent={user===item.sender}>
-                    <OverlayTrigger
-                        placement={user===item.sender ? 'left' : 'right'}
-                        overlay={
-                          <Tooltip id={`tooltip`}>
-                            <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
-                          </Tooltip>
-                            }
-                      >
-                    <ChatBubble timePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000}
-                                sent={user===item.sender}
-                                key={idx}>{item.content}</ChatBubble>
-                    </OverlayTrigger>
-                </ChatBubbleContainer>
-                {(idx !== 0 && (idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000)) &&
-                    <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
-                }
-            </>)}
-    </ChatViewContainer>
-  )
-
 
   let [chats, setChats] = React.useState([]);
 
@@ -137,23 +126,29 @@ function Chat({user}){
 
   let [newChat, setNewChat] = React.useState(false);
 
+  let [typers, setTypers] = React.useState([]);
+
 
   let [scrollTop, setScrollTop] = React.useState(0);
 
   let [mustScrollDown, setMustScrollDown] = React.useState(false);
 
-  let currChatRef = React.useRef();
+  //let currChatRef = React.useRef();
 
   let getAllChats = () => {
     fetch(`${API_ENDPOINT}/chat/allChats`, {
       credentials:"include"
     }).then((res)=>res.json()).then((data)=>{
-      setChats(data);
       console.log(data);
+      setChats(data);
     });
   }
   React.useEffect(()=>{
-    getAllChats();
+      getAllChats();
+    // const interval2 = setInterval(() => {
+    //       getAllChats();
+    //       console.log('got intervals')
+    // }, 1000);
 }, []);
 
   React.useEffect(()=>{
@@ -161,6 +156,7 @@ function Chat({user}){
       if(activeChat){
         getChat(activeChat);
       }
+      getAllChats();
     }, 1000);
 
     return () => {
@@ -168,19 +164,18 @@ function Chat({user}){
     };
 })
 
-    React.useEffect(()=>{
-        if(scrollTop!=null && currChatRef.current){
-            currChatRef.current.scrollTop = scrollTop;
-            setScrollTop(null);
-        }
-    },[activeData])
+    // React.useEffect(()=>{
+    //     if(scrollTop!=null && currChatRef.current){
+    //         currChatRef.current.scrollTop = scrollTop;
+    //         setScrollTop(null);
+    //     }
+    // },[activeData])
 
   let refreshActiveChat = () => {
       console.log('refreshing' + activeChat)
       getChat(activeChat)
   }
   let getChat = (id) => {
-    console.log(activeData)
     setNewChat(false);
     if(id){
       fetch(`${API_ENDPOINT}/chat/getChat`, {
@@ -192,15 +187,16 @@ function Chat({user}){
         body:JSON.stringify({_id: id})
       }).then(
         (res)=>res.json()).then((chat)=>{
+          setTypers(chat.typers)
           if(id!=activeChat){
               setActiveChat(chat._id)
               setActiveData(chat);
           }
           else if(chat.content.length>0 && (Date.now() - (new Date(chat.content[chat.content.length-1].time))) < 1001){
-              if(currChatRef.current && currChatRef.current.scrollTop!==0){
-                  console.log('setting saving scroll heihgt');
-                  setScrollTop(currChatRef.current.scrollTop);
-              }
+              // if(currChatRef.current && currChatRef.current.scrollTop!==0){
+              //     console.log('setting saving scroll heihgt');
+              //     setScrollTop(currChatRef.current.scrollTop);
+              // }
               setActiveData(chat);
           }
         });
@@ -209,6 +205,7 @@ function Chat({user}){
 
   let sendChat = (chatId, message) => {
     console.log('sending chat');
+    setActiveData({...activeData, content: [...activeData.content, {unsent: true, content: message, sender:user, time: Date.now()}]})
     fetch(`${API_ENDPOINT}/chat/message`, {
       method: 'post',
       credentials: 'include',
@@ -226,18 +223,31 @@ function Chat({user}){
     setActiveChat(null);
     setNewChat(true);
   }
+  let sortedChats = chats.concat().sort((b,a)=>(a["last_message"] && b["last_message"]) ? (new Date(a["last_message"].time) - new Date(b["last_message"].time)) : -1);
+
+
   return (
     <Container>
       <Header>Chat</Header>
       <Flex>
         <LeftHalf>
-            {chats.slice(0).reverse().map((item, idx) => <PreviewStyle key={idx} active={activeChat === item._id} onClick={()=>getChat(item["_id"])}>{item["users"].join(', ')}</PreviewStyle>)}
+            {sortedChats.map((item, idx) => <PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>getChat(item["_id"])}>
+                                                                <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
+                                                                {item["last_message"] && <LastMsg>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
+                                                        </PreviewStyle>)}
             <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
         </LeftHalf>
         <RightHalf>
           <div style={{padding:"10px"}}>
-              {activeChat && <ChatView data={activeData}/>}
-              {activeChat && <ChatInput activeChat={activeChat} sendChat={sendChat}/>}
+              {activeChat &&
+                  <>
+                    <ChatViewContainer>
+                        {typers && typers.map((item) => <TypingPreview>&nbsp;<Dot kf={dot1Key} left="7px"></Dot><Dot kf={dot2Key} left="16px"></Dot><Dot kf={dot3Key} left="25px"></Dot></TypingPreview>)}
+                        <ChatMessages user={user} data={activeData}/>
+                    </ChatViewContainer>
+                    <ChatInput activeChat={activeChat} sendChat={sendChat}/>
+                 </>
+            }
               {newChat && <NewChat getChat={getChat} chats={chats} getAllChats={getAllChats} setActiveChat={setActiveChat} setNewChat={setNewChat}/>}
           </div>
         </RightHalf>

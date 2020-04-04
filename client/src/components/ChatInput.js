@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import Picker from 'emoji-picker-react';
-import {PRIMARY} from './Constants'
+import {PRIMARY, API_ENDPOINT} from './Constants'
 
 const ChatInputContainer = styled.div`
     position: absolute;
@@ -40,13 +40,37 @@ function ChatInput({activeChat, sendChat}){
 
     let [emojis, setEmojis] = React.useState(false);
 
+    let [isTyping, setIsTyping] = React.useState(true);
+
+    let [timeoutHandle, setTimeoutHandle] = React.useState(0);
+
     let inputRef = React.useRef();
+
+    React.useEffect(()=>{
+        fetch(`${API_ENDPOINT}/chat/${isTyping ? 'add' : 'remove'}Typer`, {
+          credentials:"include",
+          method:'post',
+          headers: {
+          'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({_id: activeChat})
+      });
+    },[isTyping]);
 
     const checkSubmit = (e) => {
       if(e.keyCode === 13 && e.target.value.length > 0){ // if enter
+        window.clearTimeout(timeoutHandle);
+        setIsTyping(false);
         setEmojis(false);
         sendChat(activeChat, e.target.value);
         e.target.value = "";
+      }
+      else{
+          setIsTyping(true);
+          window.clearTimeout(timeoutHandle);
+          setTimeoutHandle(setInterval(function(){
+              setIsTyping(false)
+          },2000));
       }
     }
 

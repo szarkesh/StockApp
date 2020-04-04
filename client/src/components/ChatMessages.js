@@ -1,23 +1,68 @@
 import React from 'react'
 import styled from 'styled-components'
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {PRIMARY} from './Constants'
 
-const ChatViewContainer = styled.div`
-  max-height: calc(100vh - 125px);
-  overflow-y: scroll;
-`
+const ChatBubble = styled.div`
+  background: ${props=>props.sent ? PRIMARY : "#F1F0F0"};
+  max-width: 70%;
+  color: ${props=>props.sent ? 'white' : 'black'};
+  padding: 5px 10px;
+  border-radius: ${props=>props.sent ? "10px 10px 3px 10px" : "10px 10px 10px 3px"};
+`;
 
 const ChatBubbleContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: ${props=>props.sent ? 'flex-end' : 'flex-start'};
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 1px;
+  margin-bottom: ${props=>props.timePassed ? '10px' : '1px'};
+  position: relative;
+  i{
+      color: ${PRIMARY};
+      font-size: 12px;
+      position: absolute;
+      right: -15px;
+      bottom: 1px;
+  }
 `;
 
-function ChatMessages({data}){
-    return (<ChatViewContainer>
-          <div>
-            {data && data.content.map((item, idx) => <ChatBubbleContainer sent={user===item.sender}><ChatBubble sent={user===item.sender} key={idx}>{item.content}</ChatBubble></ChatBubbleContainer>)}
-          </div>
-        </ChatViewContainer>
+
+const CenteredText = styled.div`
+    width: 100%;
+    text-align: center;
+    color: #AAAAAA;
+    font-size: 13px;
+    font-weight: bold;
+`
+
+function ChatMessages({data, user}){
+    return (
+            <>
+                {data && data.content.slice(0).reverse().map((item, idx, arr) =>
+                    <>
+                        <ChatBubbleContainer timePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000} sent={user===item.sender}>
+                            <OverlayTrigger
+                                placement={user===item.sender ? 'left' : 'right'}
+                                overlay={
+                                  <Tooltip id={`tooltip`}>
+                                    <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
+                                  </Tooltip>
+                                    }
+                              >
+                            <ChatBubble
+                                        sent={user===item.sender}
+                                        key={idx}>{item.content}</ChatBubble>
+                            </OverlayTrigger>
+                            {(item.sender===user && idx < 5) && (item.unsent ? <i className="far fa-check-circle"></i> : <i className="fas fa-check-circle"></i>)}
+                        </ChatBubbleContainer>
+                        {(idx !== 0 && (idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000)) &&
+                            <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
+                        }
+                    </>)}
+            </>
     )
 }
 
