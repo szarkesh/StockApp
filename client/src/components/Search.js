@@ -329,7 +329,7 @@ function Search({user}){
                         {console.log(watchlist.indexOf(ticker))}
 
                     </FadeIn>*/}
-      {ticker && <TradingViewWidget symbol={ticker} />}
+      {ticker && <TradingViewWidget style="2" symbol={ticker} />}
       {error && <Err><i className="fas fa-exclamation-triangle"></i>Stock not found</Err>}
     </Container>
   );

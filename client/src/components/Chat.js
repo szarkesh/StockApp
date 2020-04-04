@@ -74,7 +74,10 @@ const ChatBubble = styled.div`
   max-width: 70%;
   color: ${props=>props.sent ? 'white' : 'black'};
   padding: 5px 10px;
-  margin: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 1px;
+  margin-bottom: ${props=>props.timePassed ? '10px' : '1px'};
   border-radius: ${props=>props.sent ? "10px 10px 3px 10px" : "10px 10px 10px 3px"};
 `;
 
@@ -90,23 +93,38 @@ const ChatViewContainer = styled.div`
   display: flex;
   flex-direction: column-reverse;
 `
+
+const CenteredText = styled.div`
+    width: 100%;
+    text-align: center;
+    color: #AAAAAA;
+    font-size: 13px;
+    font-weight: bold;
+`
 function Chat({user}){
 
   const ChatView = ({data}) => (
     <ChatViewContainer ref={currChatRef}>
-        {data && data.content.slice(0).reverse().map((item, idx) =>
-            <ChatBubbleContainer sent={user===item.sender}>
-                <OverlayTrigger
-                    placement={user===item.sender ? 'left' : 'right'}
-                    overlay={
-                      <Tooltip id={`tooltip`}>
-                        <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
-                      </Tooltip>
-                        }
-                  >
-                <ChatBubble sent={user===item.sender} key={idx}>{item.content}</ChatBubble>
-                </OverlayTrigger>
-            </ChatBubbleContainer>)}
+        {data && data.content.slice(0).reverse().map((item, idx, arr) =>
+            <>
+                <ChatBubbleContainer sent={user===item.sender}>
+                    <OverlayTrigger
+                        placement={user===item.sender ? 'left' : 'right'}
+                        overlay={
+                          <Tooltip id={`tooltip`}>
+                            <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
+                          </Tooltip>
+                            }
+                      >
+                    <ChatBubble timePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000}
+                                sent={user===item.sender}
+                                key={idx}>{item.content}</ChatBubble>
+                    </OverlayTrigger>
+                </ChatBubbleContainer>
+                {(idx !== 0 && (idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000)) &&
+                    <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
+                }
+            </>)}
     </ChatViewContainer>
   )
 

@@ -39,6 +39,19 @@ const WatchList = styled.div`
 
 const WatchListItem = styled.li`
   font-weight: bold;
+  position: relative;
+  cursor: pointer;
+  i{
+      position: absolute;
+      right: 0;
+      opacity: 0;
+  }
+  :hover{
+      color: ${PRIMARY};
+      i{
+          opacity: 1;
+      }
+  }
 `;
 
 const GreenBackground = styled.div`
@@ -54,6 +67,8 @@ const Padded = styled.div`
   margin: 10px;
 `
 function Home(){
+
+  let [symbol, setSymbol] = React.useState("SPY");
   React.useEffect(() => {
     fetch(`${API_ENDPOINT}/api/watchlist`,{
       credentials:'include'
@@ -133,12 +148,15 @@ function Home(){
           <WatchList>
             <GreenBackground><div>Here's your watchlist</div></GreenBackground>
             <ol style={{margin:"10px"}}>
-              {watchlist.map((item)=><WatchListItem>{item}</WatchListItem>)}
+              {watchlist.map((item)=><WatchListItem onClick={()=>setSymbol(item)}>
+                                        {item}
+                                        <i className="fas fa-chart-line"></i>
+                                    </WatchListItem>)}
             </ol>
             {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
           </WatchList>
         </div>
-        <Flex><TradingViewWidget width="550"symbol="SPY"/></Flex>
+        <Flex id="middle"><TradingViewWidget interval='5' width={parseInt((window.innerWidth - 50) * 0.5)} style="2"symbol={symbol}/></Flex>
         <Flex><Padded id="tickers"></Padded> <div style={{height:"300px !important"}} id="calendar"></div></Flex>
       </Grid>
     </Container>

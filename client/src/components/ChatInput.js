@@ -43,7 +43,7 @@ function ChatInput({activeChat, sendChat}){
     let inputRef = React.useRef();
 
     const checkSubmit = (e) => {
-      if(e.keyCode === 13){ // if enter
+      if(e.keyCode === 13 && e.target.value.length > 0){ // if enter
         setEmojis(false);
         sendChat(activeChat, e.target.value);
         e.target.value = "";
