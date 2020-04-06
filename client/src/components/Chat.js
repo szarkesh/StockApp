@@ -17,26 +17,31 @@ const Flex = styled.div`
   display: flex;
   width:100%;
   grid-template-columns: 400px 400px;
-  height:calc(100vh - 100px);
+  height: 100vh;
 `
 
 const LeftHalf = styled.div`
-  flex-basis: 300px;
+  flex: 0 0 300px;
   position: relative;
-  height: 100%;
-  overflow-y: scroll;
+  transform: translateX(0);
   border-right: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  height: 100vh;
+  overflow-y: scroll;
 `
+
+const ScrollArea = styled.div`
+`;
 
 const RightHalf = styled.div`
   height: 100%;
-  padding: 20px 0px 20px 0px;
+  padding: 0px 0px 20px 0px;
   position: relative;
   flex-grow: 1;
 `
 
 const ChatViewContainer = styled.div`
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 60px);
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse;
@@ -89,7 +94,7 @@ const FloatingButton = styled.button`
   box-shadow: ${DEFAULTSHADOW};
   position: fixed;
   bottom: 30px;
-  left: 330px;
+  left: 230px;
   transition:0.2s;
   :hover{
     background: ${LIGHTER};
@@ -103,17 +108,23 @@ const FloatingButton = styled.button`
 
 const ChatName = styled.div`
     display: block;
-    font-weight: ${props=>props.seen ? 'normal' : 'bold'}
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: ${props=>props.seen===true ? 'normal' : 'bold'};
 `
 
 
 const LastMsg = styled.div`
     font-size: 12px;
-    color: #BBBBBB;
+    color: ${props=>props.seen ? "#BBBBBB" : 'black'};
+    font-weight: ${props=>props.seen ? "normal": "bold"};
     overflow: hidden;
     text-overflow: ellipsis;
+`
+
+const Heading = styled.div`
+    font-weight: bold;
+    font-size: 30px;
+    padding: 20px 30px;
+    border-bottom: 1px solid #DDDDDD;
 `
 
 function Chat({user}){
@@ -203,6 +214,18 @@ function Chat({user}){
     }
   }
 
+  let switchChat = (id) => {
+      fetch(`${API_ENDPOINT}/chat/removeTyper`, {
+        credentials:"include",
+        method:'post',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({_id: activeChat})
+      });
+      getChat(id);
+  }
+
   let sendChat = (chatId, message) => {
     console.log('sending chat');
     setActiveData({...activeData, content: [...activeData.content, {unsent: true, content: message, sender:user, time: Date.now()}]})
@@ -226,16 +249,19 @@ function Chat({user}){
   let sortedChats = chats.concat().sort((b,a)=>(a["last_message"] && b["last_message"]) ? (new Date(a["last_message"].time) - new Date(b["last_message"].time)) : -1);
 
 
+
   return (
     <Container>
-      <Header>Chat</Header>
       <Flex>
         <LeftHalf>
-            {sortedChats.map((item, idx) => <PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>getChat(item["_id"])}>
-                                                                <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
-                                                                {item["last_message"] && <LastMsg>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
-                                                        </PreviewStyle>)}
-            <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
+            <Heading>Chat</Heading>
+            <ScrollArea>
+                {sortedChats.map((item, idx) => <PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>switchChat(item["_id"])}>
+                                                                    <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
+                                                                    {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
+                                                            </PreviewStyle>)}
+                <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
+            </ScrollArea>
         </LeftHalf>
         <RightHalf>
           <div style={{padding:"10px"}}>

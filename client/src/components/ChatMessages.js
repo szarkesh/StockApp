@@ -7,8 +7,8 @@ const ChatBubble = styled.div`
   background: ${props=>props.sent ? PRIMARY : "#F1F0F0"};
   max-width: 70%;
   color: ${props=>props.sent ? 'white' : 'black'};
-  padding: 5px 10px;
-  border-radius: ${props=>props.sent ? "10px 10px 3px 10px" : "10px 10px 10px 3px"};
+  padding: ${props=>props.sent ? '5px 12px 5px 13px' : '5px 13px 5px 12px'}; ;
+  border-radius: ${props=>props.sent ? "30px 30px 8px 30px" : "30px 30px 30px 8px"};
 `;
 
 const ChatBubbleContainer = styled.div`
@@ -36,6 +36,8 @@ const CenteredText = styled.div`
     color: #AAAAAA;
     font-size: 13px;
     font-weight: bold;
+    margin: 5px;
+    margin-bottom: 10px;
 `
 
 function ChatMessages({data, user}){

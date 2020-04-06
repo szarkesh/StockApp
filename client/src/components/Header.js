@@ -3,7 +3,6 @@ import {PRIMARY, SECONDARY} from './Constants';
 
 
 const Header = styled.div`
-  background: linear-gradient(${PRIMARY}, ${SECONDARY});
   height: 100px !important;
   display:flex;
   align-items:center;
@@ -11,7 +10,7 @@ const Header = styled.div`
   text-align: center;
   width: 100%;
   font-weight:bold;
-  color: white;
+  color: black;
   font-size: 30px;
 `;
 

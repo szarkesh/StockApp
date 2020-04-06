@@ -15,6 +15,23 @@ const Container = styled.div`
   align-items:center;
   flex-direction:column;
 `;
+
+const Padded = styled.div`
+  height: 310px;
+  padding: 10px;
+`
+
+const Flex = styled.div`
+    width: 1300px;
+    display: grid;
+    margin-top:30px;
+    grid-template-columns: 66% 33%;
+`
+const InnerFlex = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+`
 const SearchBarStyle = styled.input`
   font-size: 20px;
   padding:10px;
@@ -141,7 +158,6 @@ function Search({user}){
     }, [ref]);
   }
 
-
   React.useEffect(() => {
     csv(data).then(data=>{
       console.log(data);
@@ -152,6 +168,7 @@ function Search({user}){
       credentials:'include'
     }).then((data)=>data.json()).then((res)=>setWatchlist(res.watchlist));
   }, []);
+
 
   let [chartType, setChartType] = React.useState('line');
   let [chartInterval, setChartInterval] = React.useState(4); // 0 for 1D, 1 for 1W, 2 for 1M, 3 for 1YR, 4 for 5YR
@@ -171,6 +188,48 @@ function Search({user}){
   let [results, setResults] = React.useState([]);
 
   let [companies, setCompanies] = React.useState([]);
+
+  React.useEffect(() => {
+      if (ticker && document.getElementById("info")) {
+          var div = document.getElementById("info");
+          var child = div.lastElementChild;
+          if(child){
+              div.removeChild(child);
+          }
+          const script = document.createElement('script');
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js';
+          script.async = true;
+          script.innerHTML = JSON.stringify({
+              "symbol": `NASDAQ:${ticker}`,
+              "width": "100%",
+              "height": "100%",
+              "colorTheme": "light",
+              "isTransparent": false,
+              "locale": "en"
+          });
+          document.getElementById("info").appendChild(script);
+      }
+
+      if (ticker && document.getElementById("financials")) {
+          var div = document.getElementById("financials");
+          var child = div.lastElementChild;
+          if(child){
+              div.removeChild(child);
+          }
+          const script = document.createElement('script');
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
+          script.async = true;
+          script.innerHTML = JSON.stringify({
+              "symbol": `NASDAQ:${ticker}`,
+              "width": "100%",
+              "height": "100%",
+              "colorTheme": "light",
+              "isTransparent": false,
+              "locale": "en"
+          });
+          document.getElementById("financials").appendChild(script);
+    }
+},[ticker]);
 
   let wrapperRef = React.useRef(null);
   useOutsideAlerter(wrapperRef);
@@ -329,7 +388,20 @@ function Search({user}){
                         {console.log(watchlist.indexOf(ticker))}
 
                     </FadeIn>*/}
-      {ticker && <TradingViewWidget style="2" symbol={ticker} />}
+      {ticker &&
+          <div>
+              <Flex>
+                  <TradingViewWidget style="2" width="800px" symbol={ticker} />
+                  <InnerFlex>
+                      <Padded>
+                          <div style={{height:"100%"}} id="info"></div>
+                      </Padded>
+                      <Padded><div style={{height:"100%"}} id="financials"></div></Padded>
+                  </InnerFlex>
+              </Flex>
+          </div>
+
+            }
       {error && <Err><i className="fas fa-exclamation-triangle"></i>Stock not found</Err>}
     </Container>
   );

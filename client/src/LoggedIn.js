@@ -7,34 +7,38 @@ import Home from './components/Home'
 import Chat from './components/Chat'
 import FadeIn from 'react-fade-in'
 import {Button, Popover, OverlayTrigger} from 'react-bootstrap';
-import {API_ENDPOINT} from './components/Constants'
+import {API_ENDPOINT, PRIMARY} from './components/Constants'
 
 const LeftBarContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100px !important;
+  flex: 0 0 70px;
   padding: 10px;
   position: relative;
   padding-top: 100px;
-  background: #EEEEEE;
+  @media(max-width: 1000px){
+      display: none;
+  }
 `
 
 
 const LeftBarItem = styled.div`
-  padding:20px 0px;
+  padding:8px 8px;
+  margin: 12px 0px;
+  border-radius: 10px;
   font-size:30px;
   display: flex;
-  color: ${props=>props.active ? "#333333" : "#888888"};
+  color: ${props=>props.active ? PRIMARY : "#737373"};
   cursor:pointer;
   transition: 0.2s;
   :hover{
-    color: #555555;
+    color: ${PRIMARY}
   }
 `
 
 const AccountButton = styled(LeftBarItem)`
-  font-size: 50px;
+  font-size: 35px;
   position: absolute;
   bottom: 50px;
   margin-left: auto;
@@ -47,6 +51,7 @@ width:100vw;
 position:relative;
 flex-direction: row;
 height:100vh;
+background: #FCFCFC;
 flex-wrap: nowrap`
 
 const BottomBarContainer = styled.div`
@@ -58,6 +63,9 @@ const BottomBarContainer = styled.div`
   flex-direction: row;
   background: #EEEEEE;
   justify-content: space-evenly;
+  @media(min-width: 1001px){
+      display: none;
+  }
 `
 
 const logout = () => {
@@ -102,10 +110,10 @@ function LoggedIn() {
 
   const leftBar =
   (<LeftBarContainer>
-    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
+    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
+    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
+    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
+    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comment"></i></LeftBarItem>
 
     <OverlayTrigger trigger="click" placement="right" overlay={popover}>
       <AccountButton><i class="fas fa-user-circle"></i></AccountButton>
@@ -123,7 +131,8 @@ function LoggedIn() {
 
   return (
     <Container>
-      {window.innerWidth > 300 ? leftBar : bottomBar}
+      {leftBar}
+      {bottomBar}
       <div style={{flexGrow: "1", height:"100vh", overflowY:"scroll"}}>
         {tab===0 && <FadeIn><Search user={user}/></FadeIn>}
         {tab===1 && <FadeIn><Home/></FadeIn>}
