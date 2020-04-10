@@ -80,17 +80,9 @@ const logout = () => {
 }
 
 
-function LoggedIn() {
+function LoggedIn(){
   const [tab, setTab] = React.useState(1);
   const [user, setUser] = React.useState("");
-  const popover =  (
-    <Popover id="popover-basic">
-      <Popover.Title as="h3">Logged in as <b>{user.user}</b></Popover.Title>
-      <Popover.Content>
-        <Button onClick={()=>logout()}>Sign out</Button>
-      </Popover.Content>
-    </Popover>
-  );
 
 
   React.useEffect(() => {
@@ -98,6 +90,7 @@ function LoggedIn() {
     fetch(`${API_ENDPOINT}/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
+      console.log(res);
       if(res==="NO USER FOUND"){
         window.location.href="/signup"
       }
@@ -107,38 +100,39 @@ function LoggedIn() {
     });
 },[])
 
-  const leftBar =
-  (<LeftBarContainer>
-    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comment"></i></LeftBarItem>
-
-    <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-      <AccountButton><i className="fas fa-user-circle"></i></AccountButton>
-    </OverlayTrigger>
-  </LeftBarContainer>);
-
-  const bottomBar =
-  (<BottomBarContainer>
-    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comments"></i></LeftBarItem>
-  </BottomBarContainer>);
-
-
   return (
-    <Container>
-      {leftBar}
-      {bottomBar}
-      <div style={{flexGrow: "1", height:"100vh", overflowY:"scroll"}}>
-        {tab===0 && <FadeIn><Search user={user}/></FadeIn>}
-        {tab===1 && <FadeIn><Home user={user}/></FadeIn>}
-        {tab===2 && <FadeIn><News/></FadeIn>}
-        {tab===3 && <FadeIn><Chat user={user.user}/></FadeIn>}
-      </div>
-    </Container>
+    <div>{user &&
+        <Container>
+            <LeftBarContainer>
+              <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
+              <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
+              <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
+              <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comment"></i></LeftBarItem>
+
+              <OverlayTrigger trigger="click" placement="right" overlay=<Popover id="popover-basic">
+                <Popover.Title as="h3">Logged in as <b>{user.user}</b></Popover.Title>
+                <Popover.Content>
+                  <Button onClick={()=>logout()}>Sign out</Button>
+                </Popover.Content>
+              </Popover>
+              >
+                <AccountButton><i className="fas fa-user-circle"></i></AccountButton>
+              </OverlayTrigger>
+            </LeftBarContainer>
+            <BottomBarContainer>
+              <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
+              <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
+              <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
+              <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comments"></i></LeftBarItem>
+            </BottomBarContainer>
+          <div style={{flexGrow: "1", height:"100vh", overflowY:"scroll"}}>
+            {tab===0 && <FadeIn><Search user={user}/></FadeIn>}
+            {tab===1 && <FadeIn><Home user={user}/></FadeIn>}
+            {tab===2 && <FadeIn><News/></FadeIn>}
+            {tab===3 && <FadeIn><Chat user={user ? user.user : null}/></FadeIn>}
+          </div>
+      </Container>
+    }</div>
   );
 }
 

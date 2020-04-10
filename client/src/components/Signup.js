@@ -131,7 +131,7 @@ function Signup(){
     fetch(`${API_ENDPOINT}/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
-      if(res!=="no user found"){
+      if(res!=="NO USER FOUND"){
         window.location.href="/"
       }
     });
