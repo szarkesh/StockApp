@@ -138,7 +138,7 @@ const Padded = styled.div`
   margin: 10px;
   width:300px;
 `
-function Home(){
+function Home({user}){
 
   const defaults = ['SPY'];
 
@@ -152,9 +152,16 @@ function Home(){
 
   React.useEffect(() => {
     setMostTraded(['AAPL','FB', 'GOOG', 'BERK'])
+    // fetch(`${API_ENDPOINT}/user/current`,{
+    //     credentials:'include'
+    // }).then(data=>data.json()).then((res)=>setUser(user));
+
     fetch(`${API_ENDPOINT}/api/watchlist`,{
       credentials:'include'
-    }).then((data)=>data.json()).then((res)=>setWatchlist(res.watchlist));
+    }).then((data)=>data.json()).then((res)=>{
+      setWatchlist(res.watchlist);
+      console.log('hi')
+    })
 
     if (document.getElementById("tickers")) {
     const script = document.createElement('script');
@@ -183,7 +190,7 @@ function Home(){
       "width":"300px",
     });
     document.getElementById("tickers").appendChild(script);
-}
+    }
 
     if(document.getElementById("calendar")) {
       const script2 = document.createElement('script');
@@ -250,7 +257,7 @@ function Home(){
           </WatchListItem>
           <div>
               <i className="fas fa-chart-line"></i>
-              <StockMovement className="movement" value={price}><span className="price">{price}</span><span className="change">{changeString(change, true)}</span></StockMovement>
+              <StockMovement className="movement" value={price}><span className="price">{parseFloat(price).toFixed(2)}</span><span className="change">{changeString(change, true)}</span></StockMovement>
           </div>
       </LeftRight>
   )}
@@ -260,7 +267,7 @@ function Home(){
   return (
     isLoaded ?
         (<Container>
-          <Header>{greeting}, Shaya. The S&P 500 is <Indicator value={watchlistPrices["changes"]["SPY"]}> up {changeString(watchlistPrices["changes"]["SPY"], false)} </Indicator> today.</Header>
+          <Header>{greeting}, {user.first}. The S&P 500 is <Indicator value={watchlistPrices["changes"]["SPY"]}> up {changeString(watchlistPrices["changes"]["SPY"], false)} </Indicator> today.</Header>
           <Grid>
             <Left>
               <WatchList>

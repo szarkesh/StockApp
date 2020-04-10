@@ -184,10 +184,6 @@ function Chat({user}){
     //     }
     // },[activeData])
 
-  let refreshActiveChat = () => {
-      console.log('refreshing' + activeChat)
-      getChat(activeChat)
-  }
   let getChat = (id) => {
     setNewChat(false);
     if(id){
@@ -201,7 +197,7 @@ function Chat({user}){
       }).then(
         (res)=>res.json()).then((chat)=>{
           setTypers(chat.typers)
-          if(id!=activeChat){
+          if(id!==activeChat){
               setActiveChat(chat._id)
               setActiveData(chat);
           }
@@ -261,7 +257,7 @@ function Chat({user}){
             <Heading>Chat</Heading>
             <ScrollArea>
                 {sortedChats.map((item, idx) => {
-                    if(idx===0 && activeChat===null){
+                    if(idx===0 && activeChat===null && newChat===false){
                         setActiveChat(item._id)
                         getChat(item._id)
                     }

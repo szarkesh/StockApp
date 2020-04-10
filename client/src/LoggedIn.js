@@ -85,7 +85,7 @@ function LoggedIn() {
   const [user, setUser] = React.useState("");
   const popover =  (
     <Popover id="popover-basic">
-      <Popover.Title as="h3">Logged in as <b>{user}</b></Popover.Title>
+      <Popover.Title as="h3">Logged in as <b>{user.user}</b></Popover.Title>
       <Popover.Content>
         <Button onClick={()=>logout()}>Sign out</Button>
       </Popover.Content>
@@ -98,15 +98,14 @@ function LoggedIn() {
     fetch(`${API_ENDPOINT}/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
-      if(res==="no user found"){
+      if(res==="NO USER FOUND"){
         window.location.href="/signup"
       }
       else{
-        console.log('user is' + res);
         setUser(res);
       }
     });
-  })
+},[])
 
   const leftBar =
   (<LeftBarContainer>
@@ -135,9 +134,9 @@ function LoggedIn() {
       {bottomBar}
       <div style={{flexGrow: "1", height:"100vh", overflowY:"scroll"}}>
         {tab===0 && <FadeIn><Search user={user}/></FadeIn>}
-        {tab===1 && <FadeIn><Home/></FadeIn>}
+        {tab===1 && <FadeIn><Home user={user}/></FadeIn>}
         {tab===2 && <FadeIn><News/></FadeIn>}
-        {tab===3 && <FadeIn><Chat user={user}/></FadeIn>}
+        {tab===3 && <FadeIn><Chat user={user.user}/></FadeIn>}
       </div>
     </Container>
   );
