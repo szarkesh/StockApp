@@ -2,8 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import MyChart from "./Chart"
 import TradingViewWidget from 'react-tradingview-widget';
+import BounceLoader from "react-spinners/BounceLoader";
 
 import {PRIMARY, DEFAULTSHADOW, API_ENDPOINT} from "./Constants"
+
+const api_key = process.env.API_KEY;
 
 const Container = styled.div`
   width:100%;
@@ -12,6 +15,14 @@ const Container = styled.div`
   align-items: center;
   background: #FCFCFC
 `;
+
+const LoaderContainer = styled.div`
+  height: 30vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 
 const Indicator = styled.span`
     color: ${props=>props.value==="up" ? PRIMARY : "#FF5C5C"};
@@ -31,17 +42,27 @@ const LeftRight = styled.div`
     padding:0px 10px;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
     i{
         display: none;
     }
     .movement{
         display: inline-block;
     }
+    .change{
+        display: none;
+    }
     :hover{
         color: ${PRIMARY};
         i{
             display: inline;
             padding-right: 5px;
+        }
+        .change{
+            display: block;
+        }
+        .price{
+            display: none;
         }
     }
 `
@@ -119,7 +140,16 @@ const Padded = styled.div`
 `
 function Home(){
 
+  const defaults = ['SPY'];
+
   let [symbol, setSymbol] = React.useState("SPY");
+  let [spyData, setSpyData] = React.useState(null);
+  let [watchlist, setWatchlist] = React.useState([]);
+  let [watchlistPrices, setWatchlistPrices] = React.useState({});
+  let [mostTraded, setMostTraded] = React.useState([]);
+
+  let [isLoaded, setLoaded] = React.useState(false);
+
   React.useEffect(() => {
     setMostTraded(['AAPL','FB', 'GOOG', 'BERK'])
     fetch(`${API_ENDPOINT}/api/watchlist`,{
@@ -167,15 +197,52 @@ function Home(){
       document.getElementById("calendar").appendChild(script2);
     }
 
-
   }, []);
 
-  let [spyData, setSpyData] = React.useState(null);
-  let [watchlist, setWatchlist] = React.useState([]);
-  let [mostTraded, setMostTraded] = React.useState([]);
+  React.useEffect(()=>{
+      if(watchlist!==undefined && watchlist.length>0){
+          fetch(`https://cloud.iexapis.com/stable/stock/market/batch?symbols=${watchlist.concat(mostTraded).concat(defaults).join(',')}&types=quote&token=pk_8fa889db22804e399de1a400f9bf485d`)
+          .then((res)=>res.json()).then((data)=>{
+              let prices = {};
+              prices.prices = {};
+              prices.changes = {};
+
+              console.log(data);
+              Object.keys(data).forEach((item) => prices["prices"][item] = data[item].quote.latestPrice);
+              Object.keys(data).forEach((item) => prices["changes"][item] = data[item].quote.changePercent);
+              //Object.keys(data).map((item)=>changes.push({[item]: data[item].quote.latestPrice}))
+              console.log(prices);
+              setWatchlistPrices(prices);
+              //setWatchListChanges(changes)
+          })
+      }
+  }, [watchlist, mostTraded])
+
+  React.useEffect(()=>{
+      if(watchlistPrices['prices']){
+          setLoaded(true);
+          console.log(watchlistPrices)
+      }
+  },[watchlistPrices])
+
+  let changeString = (change, direction) => {
+      if(change!=="-"){
+          if(direction){
+              return (change > 0 ? "+" : "") + parseFloat(change).toFixed(2)+"%"
+          }
+          else{
+              return parseFloat(Math.abs(change)).toFixed(2)+"%"
+          }
+
+      }
+      else{
+           return "-"
+      }
+  }
 
   let listItem = (item) => {
-      let curr = movement(item);
+      let price = watchlistPrices["prices"] ? watchlistPrices["prices"][item] : "-";
+      let change = watchlistPrices["changes"] ? watchlistPrices["changes"][item] : "-";
       return (
       <LeftRight onClick={()=>setSymbol(item)}>
           <WatchListItem>
@@ -183,63 +250,44 @@ function Home(){
           </WatchListItem>
           <div>
               <i className="fas fa-chart-line"></i>
-              <StockMovement className="movement" value={curr}>{curr}%</StockMovement>
+              <StockMovement className="movement" value={price}><span className="price">{price}</span><span className="change">{changeString(change, true)}</span></StockMovement>
           </div>
       </LeftRight>
   )}
 
-
-
-
-  // React.useEffect(()=>{
-  //     fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=SPY&interval=5min&apikey=QJGGE8FMLYC8INMS`)
-  //     .then(res=>res.json())
-  //     .then(function(result){
-  //       console.log(result);
-  //       if(result["Note"]){
-  //         window.alert('couldnt load spy graph');
-  //       }
-  //       else{
-  //         setSpyData(result);
-  //       }
-  //     }
-  //   )
-  // });
-
-  let movement = (ticker) => {
-      return (Math.random()-0.5).toFixed(2);
-  }
-
   let hrOfDay = new Date().getHours();
   let greeting = hrOfDay < 12 ? 'Good morning' : (hrOfDay < 18 ? 'Good afternoon' : 'Good evening');
   return (
-    <Container>
-      <Header>{greeting}, Shaya. The S&P 500 is <Indicator value="up"> up 1.39% </Indicator> today.</Header>
-      <Grid>
-        <Left>
-          <WatchList>
-            <GreenBackground><div>Your watchlist</div></GreenBackground>
-            <div style={{padding:"10px"}}>
-              {watchlist.map((item)=>
-                                    listItem(item))}
-            </div>
-            {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
-          </WatchList>
-          <WatchList>
-            <GreenBackground><div>Most traded today</div></GreenBackground>
-            <div style={{margin:"10px"}}>
-              {mostTraded.map((item)=>listItem(item))}
-          </div>
-            {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
-          </WatchList>
-        </Left>
-        <Flex id="middle"><TradingViewWidget interval='5' width={parseInt((window.innerWidth - 50) * 0.5)} style="2" symbol={symbol}/></Flex>
-        <Flex>
-            <Padded id="tickers"></Padded>
-            <div style={{height:"300px !important"}} id="calendar"></div>
-        </Flex>
-      </Grid>
-    </Container>
+    isLoaded ?
+        (<Container>
+          <Header>{greeting}, Shaya. The S&P 500 is <Indicator value={watchlistPrices["changes"]["SPY"]}> up {changeString(watchlistPrices["changes"]["SPY"], false)} </Indicator> today.</Header>
+          <Grid>
+            <Left>
+              <WatchList>
+                <GreenBackground><div>Your watchlist</div></GreenBackground>
+                <div style={{padding:"10px"}}>
+                  {watchlist.map((item)=>
+                                        listItem(item))}
+                </div>
+                {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
+              </WatchList>
+              <WatchList>
+                <GreenBackground><div>Most traded today</div></GreenBackground>
+                <div style={{margin:"10px"}}>
+                  {mostTraded.map((item)=>listItem(item))}
+              </div>
+                {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
+              </WatchList>
+            </Left>
+            <Flex id="middle"><TradingViewWidget interval='5' width={parseInt((window.innerWidth - 50) * 0.5)} style="2" symbol={symbol}/></Flex>
+            <Flex>
+                <Padded id="tickers"></Padded>
+                <div style={{height:"300px !important"}} id="calendar"></div>
+            </Flex>
+          </Grid>
+      </Container>)
+      :
+      <LoaderContainer><BounceLoader color={PRIMARY}/></LoaderContainer>
   )
 }
 

@@ -116,16 +116,16 @@ function LoggedIn() {
     <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comment"></i></LeftBarItem>
 
     <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-      <AccountButton><i class="fas fa-user-circle"></i></AccountButton>
+      <AccountButton><i className="fas fa-user-circle"></i></AccountButton>
     </OverlayTrigger>
   </LeftBarContainer>);
 
   const bottomBar =
   (<BottomBarContainer>
-    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i class="fas fa-search"></i></LeftBarItem>
-    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i class="fas fa-home"></i></LeftBarItem>
-    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i class="fas fa-newspaper"></i></LeftBarItem>
-    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i class="fas fa-comments"></i></LeftBarItem>
+    <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
+    <LeftBarItem active={tab===1} onClick={()=>setTab(1)}><i className="fas fa-home"></i></LeftBarItem>
+    <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
+    <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comments"></i></LeftBarItem>
   </BottomBarContainer>);
 
 

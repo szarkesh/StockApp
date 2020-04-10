@@ -36,15 +36,13 @@ const EmojiButton = styled.button`
     }
 `
 
-function ChatInput({activeChat, sendChat}){
+function ChatInput({activeChat, sendChat, inputRef}){
 
     let [emojis, setEmojis] = React.useState(false);
 
     let [isTyping, setIsTyping] = React.useState(true);
 
     let [timeoutHandle, setTimeoutHandle] = React.useState(0);
-
-    let inputRef = React.useRef();
 
     React.useEffect(()=>{
         fetch(`${API_ENDPOINT}/chat/${isTyping ? 'add' : 'remove'}Typer`, {

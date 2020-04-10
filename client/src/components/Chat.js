@@ -139,6 +139,8 @@ function Chat({user}){
 
   let [typers, setTypers] = React.useState([]);
 
+  let inputRef = React.useRef();
+
 
   let [scrollTop, setScrollTop] = React.useState(0);
 
@@ -226,6 +228,8 @@ function Chat({user}){
       getChat(id);
   }
 
+
+
   let sendChat = (chatId, message) => {
     console.log('sending chat');
     setActiveData({...activeData, content: [...activeData.content, {unsent: true, content: message, sender:user, time: Date.now()}]})
@@ -256,22 +260,29 @@ function Chat({user}){
         <LeftHalf>
             <Heading>Chat</Heading>
             <ScrollArea>
-                {sortedChats.map((item, idx) => <PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>switchChat(item["_id"])}>
-                                                                    <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
-                                                                    {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
-                                                            </PreviewStyle>)}
+                {sortedChats.map((item, idx) => {
+                    if(idx===0 && activeChat===null){
+                        setActiveChat(item._id)
+                        getChat(item._id)
+                    }
+                    return (<PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>switchChat(item["_id"])}>
+                                                                        <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
+                                                                        {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
+                                                                </PreviewStyle>)
+
+                })}
                 <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
             </ScrollArea>
         </LeftHalf>
         <RightHalf>
-          <div style={{padding:"10px"}}>
+          <div style={{padding:"10px",height:"100%"}} onClick={()=>inputRef.current.focus()}>
               {activeChat &&
                   <>
                     <ChatViewContainer>
                         {typers && typers.map((item) => <TypingPreview>&nbsp;<Dot kf={dot1Key} left="7px"></Dot><Dot kf={dot2Key} left="16px"></Dot><Dot kf={dot3Key} left="25px"></Dot></TypingPreview>)}
                         <ChatMessages user={user} data={activeData}/>
                     </ChatViewContainer>
-                    <ChatInput activeChat={activeChat} sendChat={sendChat}/>
+                    <ChatInput activeChat={activeChat} inputRef={inputRef} sendChat={sendChat}/>
                  </>
             }
               {newChat && <NewChat getChat={getChat} chats={chats} getAllChats={getAllChats} setActiveChat={setActiveChat} setNewChat={setNewChat}/>}

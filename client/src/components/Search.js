@@ -391,7 +391,7 @@ function Search({user}){
       {ticker &&
           <div>
               <Flex>
-                  <TradingViewWidget style="2" width="800px" symbol={ticker} />
+                  <TradingViewWidget style="2" width="800" symbol={ticker} />
                   <InnerFlex>
                       <Padded>
                           <div style={{height:"100%"}} id="info"></div>

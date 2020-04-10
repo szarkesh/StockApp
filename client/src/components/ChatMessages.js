@@ -9,6 +9,10 @@ const ChatBubble = styled.div`
   color: ${props=>props.sent ? 'white' : 'black'};
   padding: ${props=>props.sent ? '5px 12px 5px 13px' : '5px 13px 5px 12px'}; ;
   border-radius: ${props=>props.sent ? "30px 30px 8px 30px" : "30px 30px 30px 8px"};
+  a{
+      color:${props=>props.sent ? 'white' : 'black'};
+      text-decoration: underline;
+  }
 `;
 
 const ChatBubbleContainer = styled.div`
@@ -40,6 +44,20 @@ const CenteredText = styled.div`
     margin-bottom: 10px;
 `
 
+let stringify = (str) => {
+      var urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+
+      // www. sans http:// or https://
+      var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+
+      // Email addresses
+      var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.[a-zA-Z]{2,6})+/gim;
+      return str
+          .replace(urlPattern, '<a target="_blank" href="$&">$&</a>')
+          .replace(pseudoUrlPattern, '$1<a target="_blank" href="http://$2">$2</a>')
+          .replace(emailAddressPattern, '<a target="_blank" href="mailto:$&">$&</a>');
+};
+
 function ChatMessages({data, user}){
     return (
             <>
@@ -56,7 +74,7 @@ function ChatMessages({data, user}){
                               >
                             <ChatBubble
                                         sent={user===item.sender}
-                                        key={idx}>{item.content}</ChatBubble>
+                                        key={idx} dangerouslySetInnerHTML={{__html: stringify(item.content)}}></ChatBubble>
                             </OverlayTrigger>
                             {(item.sender===user && idx < 5) && (item.unsent ? <i className="far fa-check-circle"></i> : <i className="fas fa-check-circle"></i>)}
                         </ChatBubbleContainer>
