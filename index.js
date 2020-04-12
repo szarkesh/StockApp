@@ -54,10 +54,10 @@ app.use(function(req, res, next) {
 
 app.use(express.static(path.join(__dirname, 'client/build')))
 
-// app.use(cors({
-//   origin: isLocal ? 'http://localhost:3000':'https://www.avana.io',
-//   credentials: true
-// }));
+app.use(cors({
+  origin: isLocal ? 'http://localhost:3000':'https://www.avana.io',
+  credentials: true
+}));
 app.use(bodyParser.json());
 
 app.use('/api',apiRoutes);
