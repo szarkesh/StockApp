@@ -44,6 +44,11 @@ const CenteredText = styled.div`
     margin-bottom: 10px;
 `
 
+const EmptyText = styled(CenteredText)`
+    padding: 200px;
+    font-size: 15px;
+`
+
 let stringify = (str) => {
       var urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
 
@@ -82,6 +87,7 @@ function ChatMessages({data, user}){
                             <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
                         }
                     </>)}
+                <>{(!data || data.content.length==0) && <EmptyText>No one's said anything yet...</EmptyText>}</>
             </>
     )
 }

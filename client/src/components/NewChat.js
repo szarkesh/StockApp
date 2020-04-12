@@ -52,8 +52,8 @@ const ChatInput = styled.input`
 `;
 
 const MyButton = styled.button`
-  border: solid 2px ${PRIMARY};
-  background: ${SECONDARY};
+  border: solid 2px ${props=>props.disabled ? "#AAAAAA" : PRIMARY};
+  background: ${props=>props.disabled ? "#CCCCCC" : SECONDARY};
   color: white;
   outline: none;
   padding: 3px 10px;
@@ -106,7 +106,7 @@ function NewChat({chats, getAllChats, getChat, setNewChat, setActiveChat}){
       console.log(data);
       setNewChat(false);
       getAllChats()
-      setActiveChat(data)})
+      getChat(data)})
   }
 
   return(
@@ -116,7 +116,7 @@ function NewChat({chats, getAllChats, getChat, setNewChat, setActiveChat}){
       </div>
       <Flex>
         <ChatInput ref={(ref) => searchRef = ref} autoFocus onKeyDown={updateResults} placeholder="Search for users..."/>
-        <MyButton onClick={()=>createChat()}>Create chat</MyButton>
+        <MyButton disabled={usernames.length==0} onClick={()=>createChat()}>Create chat</MyButton>
       </Flex>
       <div>
         {results.map((item, idx) => <SearchResult key={idx} onClick={()=>(setUsernames([...usernames, item]), setResults([]), searchRef.value = "", searchRef.focus())}>{item.user}</SearchResult>)}

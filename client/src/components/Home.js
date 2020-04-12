@@ -143,8 +143,7 @@ function Home({user}){
   const defaults = ['SPY'];
 
   let [symbol, setSymbol] = React.useState("SPY");
-  let [spyData, setSpyData] = React.useState(null);
-  let [watchlist, setWatchlist] = React.useState([]);
+  let [watchlist, setWatchlist] = React.useState(undefined);
   let [watchlistPrices, setWatchlistPrices] = React.useState({});
   let [mostTraded, setMostTraded] = React.useState([]);
 
@@ -160,7 +159,6 @@ function Home({user}){
       credentials:'include'
     }).then((data)=>data.json()).then((res)=>{
       setWatchlist(res.watchlist);
-      console.log('hi')
     })
 
     if (document.getElementById("tickers")) {
@@ -207,28 +205,20 @@ function Home({user}){
   }, []);
 
   React.useEffect(()=>{
-      if(watchlist!==undefined && watchlist.length>0){
+      if(watchlist!==undefined){
+          let prices = {prices:{}, changes:{}};
           fetch(`https://cloud.iexapis.com/stable/stock/market/batch?symbols=${watchlist.concat(mostTraded).concat(defaults).join(',')}&types=quote&token=pk_8fa889db22804e399de1a400f9bf485d`)
           .then((res)=>res.json()).then((data)=>{
-              let prices = {};
-              prices.prices = {};
-              prices.changes = {};
-
-              console.log(data);
               Object.keys(data).forEach((item) => prices["prices"][item] = data[item].quote.latestPrice);
               Object.keys(data).forEach((item) => prices["changes"][item] = data[item].quote.changePercent);
-              //Object.keys(data).map((item)=>changes.push({[item]: data[item].quote.latestPrice}))
-              console.log(prices);
               setWatchlistPrices(prices);
-              //setWatchListChanges(changes)
           })
       }
   }, [watchlist, mostTraded])
 
   React.useEffect(()=>{
-      if(watchlistPrices['prices']){
+      if(watchlistPrices['prices']!==undefined){
           setLoaded(true);
-          console.log(watchlistPrices)
       }
   },[watchlistPrices])
 
@@ -273,8 +263,7 @@ function Home({user}){
               <WatchList>
                 <GreenBackground><div>Your watchlist</div></GreenBackground>
                 <div style={{padding:"10px"}}>
-                  {watchlist.map((item)=>
-                                        listItem(item))}
+                  {watchlist.map((item)=>listItem(item))}
                 </div>
                 {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
               </WatchList>
@@ -283,7 +272,6 @@ function Home({user}){
                 <div style={{margin:"10px"}}>
                   {mostTraded.map((item)=>listItem(item))}
               </div>
-                {watchlist.length === 0 && <div style={{padding:"15px", paddingTop:"0px"}}>Nothing added to your watchlist. Search for stocks to add them!</div>}
               </WatchList>
             </Left>
             <Flex id="middle"><TradingViewWidget interval='5' width={parseInt((window.innerWidth - 50) * 0.5)} style="2" symbol={symbol}/></Flex>

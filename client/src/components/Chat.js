@@ -152,7 +152,6 @@ function Chat({user}){
     fetch(`${API_ENDPOINT}/chat/allChats`, {
       credentials:"include"
     }).then((res)=>res.json()).then((data)=>{
-      console.log(data);
       setChats(data);
     });
   }
@@ -271,7 +270,7 @@ function Chat({user}){
             </ScrollArea>
         </LeftHalf>
         <RightHalf>
-          <div style={{padding:"10px",height:"100%"}} onClick={()=>inputRef.current.focus()}>
+          <div style={{padding:"10px",height:"100%"}} onClick={()=>(inputRef.current && inputRef.current.focus())}>
               {activeChat &&
                   <>
                     <ChatViewContainer>

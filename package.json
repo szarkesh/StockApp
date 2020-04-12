@@ -1,0 +1,20 @@
+{
+  "name": "stockapp",
+  "version": "1.0.0",
+  "description": "Root directory package json",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szarkesh/StockApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/szarkesh/StockApp/issues"
+  },
+  "homepage": "https://github.com/szarkesh/StockApp#readme"
+}

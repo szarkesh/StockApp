@@ -125,7 +125,6 @@ function KeywordAdder({sendBack}){
   }
   return(
     <div>
-        {console.log(results)}
       <div style={{marginBottom:"10px"}}>
         {keywords.map((item, idx) => <UserBox key={idx}>
                                         <div>{item}</div>
