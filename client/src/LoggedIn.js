@@ -7,7 +7,10 @@ import Home from './components/Home'
 import Chat from './components/Chat'
 import FadeIn from 'react-fade-in'
 import {Button, Popover, OverlayTrigger} from 'react-bootstrap';
-import {PRIMARY} from './components/Constants'
+import UserCircle from './components/UserCircle'
+import Popup from 'reactjs-popup'
+import Profile from './components/Profile'
+import {PRIMARY, HIGHLIGHT} from './components/Constants'
 
 const LeftBarContainer = styled.div`
   display: flex;
@@ -37,10 +40,10 @@ const LeftBarItem = styled.div`
   }
 `
 
-const AccountButton = styled(LeftBarItem)`
+const AccountHolder = styled(LeftBarItem)`
   font-size: 35px;
   position: absolute;
-  bottom: 50px;
+  bottom: 30px;
   margin-left: auto;
   margin-right: auto;
 `
@@ -53,6 +56,16 @@ flex-direction: row;
 height:100vh;
 background: #FCFCFC;
 flex-wrap: nowrap`
+
+const ChatOptions = styled.div`
+    div{
+        cursor: pointer;
+        padding: 0px 5px;
+        :hover{
+            background: ${HIGHLIGHT};
+        }
+    }
+`
 
 const BottomBarContainer = styled.div`
   position: fixed;
@@ -109,15 +122,9 @@ function LoggedIn(){
               <LeftBarItem active={tab===2} onClick={()=>setTab(2)}><i className="fas fa-newspaper"></i></LeftBarItem>
               <LeftBarItem active={tab===3} onClick={()=>setTab(3)}><i className="fas fa-comment"></i></LeftBarItem>
 
-              <OverlayTrigger trigger="click" placement="right" overlay=<Popover id="popover-basic">
-                <Popover.Title as="h3">Logged in as <b>{user.user}</b></Popover.Title>
-                <Popover.Content>
-                  <Button onClick={()=>logout()}>Sign out</Button>
-                </Popover.Content>
-              </Popover>
-              >
-                <AccountButton><i className="fas fa-user-circle"></i></AccountButton>
-              </OverlayTrigger>
+              <AccountHolder onClick={()=>setTab(4)}>
+                  <UserCircle size="20" usernames={[user.user]}/>
+              </AccountHolder>
             </LeftBarContainer>
             <BottomBarContainer>
               <LeftBarItem active={tab===0} onClick={()=>setTab(0)}><i className="fas fa-search"></i></LeftBarItem>
@@ -130,6 +137,7 @@ function LoggedIn(){
             {tab===1 && <FadeIn><Home user={user}/></FadeIn>}
             {tab===2 && <FadeIn><News/></FadeIn>}
             {tab===3 && <FadeIn><Chat user={user ? user.user : null}/></FadeIn>}
+            {tab===4 && <FadeIn><Profile user={user}/></FadeIn>}
           </div>
       </Container>
     }</div>

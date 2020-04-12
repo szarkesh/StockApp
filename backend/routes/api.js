@@ -17,7 +17,7 @@ router.get('/add', function(req, res, next) {
 })
 
 router.get('/watchlist', function(req, res, next){
-  User.findOne({user: req.session.user}, 'watchlist', function(err, person) {
+  User.findOne({_id: req.session.user._id}, 'watchlist', function(err, person) {
     if(err) console.log(err);
     if(person){
         res.send(JSON.stringify({watchlist: person.watchlist}))
@@ -29,14 +29,14 @@ router.get('/watchlist', function(req, res, next){
 })
 
 router.post('/watchlist/add', function(req, res, next){
-  User.update({user: req.session.user}, { $push: {watchlist: req.body.ticker}}, function(err, person){
+  User.updateOne({_id: req.session.user._id}, { $push: {watchlist: req.body.ticker}}, function(err, person){
     if(err) res.send("Error");
     if(!err) res.send("Success");
   })
 })
 
 router.post('/watchlist/remove', function(req, res, next){
-  User.update({user: req.session.user}, { $pull: {watchlist: req.body.ticker}}, function(err, person){
+  User.updateOne({_id: req.session.user._id}, { $pull: {watchlist: req.body.ticker}}, function(err, person){
     console.log('removed');
     console.log(person.watchlist);
     if(err) res.send("Error");
@@ -56,7 +56,7 @@ router.get('/searchTopics', function(req, res, next){
 })
 
 router.get('/topics', function(req, res, next){
-    User.findOne({user: req.session.user}, 'topics', function(err, person) {
+    User.findOne({_id: req.session.user._id}, 'topics', function(err, person) {
       if(err) console.log(err);
       if(person){
          res.send(JSON.stringify({topics: person.topics}))
@@ -68,14 +68,14 @@ router.get('/topics', function(req, res, next){
 })
 
 router.post('/topics/add', function(req, res, next){
-  User.update({user: req.session.user}, { $push: {topics: req.body.topic}}, function(err, person){
+  User.update({_id: req.session.user._id}, { $push: {topics: req.body.topic}}, function(err, person){
     if(err) res.send("Error");
     if(!err) res.send("Success");
   })
 })
 
 router.post('/topics/remove', function(req, res, next){
-  User.update({user: req.session.user}, { $pull: {topics: req.body.topic}}, function(err, person){
+  User.update({_id: req.session.user._id}, { $pull: {topics: req.body.topic}}, function(err, person){
     console.log('removed');
     if(err) res.send("Error");
     if(!err) res.send("Success");

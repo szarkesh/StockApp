@@ -24,9 +24,9 @@ router.post('/signup', function(req, res, next) {
           pass: hash,
         })
 
-        user.save(function(err) {
+        user.save(function(err, newUser) {
           if (!err) {
-            req.session.user = req.body.username;
+            req.session.user = newUser;
             console.log('success');
             res.send(JSON.stringify("success"));
           } else {
@@ -48,8 +48,8 @@ router.post('/login', function(req, res, next) {
       bcrypt.compare(req.body.password, user.pass, function(err, result) {
         console.log('result is' + result);
         if(result === true){
-          req.session.user = req.body.username;
-          console.log('made session ' + req.session.user);
+          req.session.user = user;
+          console.log('made session ' + req.session.user.user);
           res.send(JSON.stringify(req.session.user));
         }
         else{
@@ -67,16 +67,12 @@ router.post('/logout', function(req, res, next){
 
 router.get('/current', function(req, res, next){
   console.log('curr user is ' + req.session.user);
-  User.findOne({user: req.session.user}, function(err, response){
-      console.log('found user');
-      if(err || response===null){
-          res.send(JSON.stringify("NO USER FOUND"))
-      }
-      else{
-          res.send(JSON.stringify(response))
-      }
-
-  })
+  if(req.session.user){
+      res.send(JSON.stringify(req.session.user));
+  }
+  else{
+      res.send(JSON.stringify("NO USER FOUND"));
+  }
 
 });
 //

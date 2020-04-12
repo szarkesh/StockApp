@@ -26,6 +26,7 @@
     "express-http-to-https": "^1.1.4",
     "express-session": "^1.17.0",
     "mongoose": "^5.9.7",
+    "nodemon": "^2.0.3",
     "os": "^0.1.1"
   },
   "devDependencies": {}

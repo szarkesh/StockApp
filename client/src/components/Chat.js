@@ -4,9 +4,11 @@ import Header from './Header'
 import ChatMessages from './ChatMessages'
 import NewChat from './NewChat'
 import { PRIMARY, HIGHLIGHT, LIGHTER, DEFAULTSHADOW, API_ENDPOINT } from './Constants'
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {OverlayTrigger, Popover, Button, Tooltip} from 'react-bootstrap';
+import Popup from 'reactjs-popup'
 import {dot1Key, dot2Key, dot3Key} from './KeyFrames'
 import ChatInput from './ChatInput';
+import UserCircle from './UserCircle';
 
 const Container = styled.div`
   align-items: center;
@@ -16,12 +18,11 @@ const Container = styled.div`
 const Flex = styled.div`
   display: flex;
   width:100%;
-  grid-template-columns: 400px 400px;
   height: 100vh;
 `
 
 const LeftHalf = styled.div`
-  flex: 0 0 300px;
+  flex: 0 0 320px;
   position: relative;
   transform: translateX(0);
   border-right: 1px solid #DDDDDD;
@@ -48,19 +49,15 @@ const ChatViewContainer = styled.div`
 `
 
 const PreviewStyle = styled.div`
-  border-bottom: 1px solid #DDDDDD;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 20px 0px;
   height:80px;
+  width: 200px;
   justify-content: start;
   cursor: pointer;
-  :hover{
-    background: ${props=>props.active ? "#F2F2F2" : HIGHLIGHT};
-  }
-  ${props=>props.active && "background:#F2F2F2;"}
 `
 
 const TypingPreview = styled.div`
@@ -109,6 +106,10 @@ const FloatingButton = styled.button`
 const ChatName = styled.div`
     display: block;
     font-weight: ${props=>props.seen===true ? 'normal' : 'bold'};
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
 `
 
 
@@ -125,6 +126,49 @@ const Heading = styled.div`
     font-size: 30px;
     padding: 20px 30px;
     border-bottom: 1px solid #DDDDDD;
+`
+
+const OneFifthGrid = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 12fr 2fr;
+    border-bottom: 1px solid #DDDDDD;
+    :hover{
+      background: ${props=>props.active ? "#F0F0F0" : HIGHLIGHT};
+    }
+    ${props=>props.active && "background:#F0F0F0;"}
+`
+
+const Center = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:80px;
+    height:80px;
+`
+
+const Cog = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    i{
+        font-size: 12px;
+        color: #CCCCCC;
+        transition: 0.1s all;
+        :hover{
+            color: #999999;
+        }
+    }
+`
+
+const ChatOptions = styled.div`
+    div{
+        cursor: pointer;
+        padding: 0px 5px;
+        :hover{
+            background: ${HIGHLIGHT};
+        }
+    }
 `
 
 function Chat({user}){
@@ -152,6 +196,7 @@ function Chat({user}){
     fetch(`/chat/allChats`, {
       credentials:"include"
     }).then((res)=>res.json()).then((data)=>{
+      //console.log(data);
       setChats(data);
     });
   }
@@ -184,6 +229,7 @@ function Chat({user}){
     // },[activeData])
 
   let getChat = (id) => {
+    console.log('getting chat ' + id);
     setNewChat(false);
     if(id){
       fetch(`/chat/getChat`, {
@@ -223,6 +269,22 @@ function Chat({user}){
       getChat(id);
   }
 
+  let leaveChat = (id) => {
+      console.log('boutta leave chat')
+      fetch(`/chat/leaveChat`, {
+        method: 'post',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({_id: id})
+    }).then((res)=>res.json()).then((data)=>{
+        if(data==="success"){
+            console.log("success");
+        }
+    })
+  }
+
 
 
   let sendChat = (chatId, message) => {
@@ -260,10 +322,23 @@ function Chat({user}){
                         setActiveChat(item._id)
                         getChat(item._id)
                     }
-                    return (<PreviewStyle key={item["users"].join(', ')} active={activeChat === item._id} onClick={()=>switchChat(item["_id"])}>
-                                                                        <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
-                                                                        {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
-                                                                </PreviewStyle>)
+                    return (
+                        <OneFifthGrid key={item["users"].join(', ')} active={activeChat === item._id}>
+                            <Center onClick={()=>switchChat(item["_id"])}>
+                                <UserCircle usernames={item["users"]}/>
+                            </Center>
+                            <PreviewStyle onClick={()=>switchChat(item["_id"])}>
+                                <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
+                                {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
+                            </PreviewStyle>
+                            <Popup style={{height:"20px"}} trigger={<Cog><i className="fas fa-cog"></i></Cog>}
+                                position="left"
+                                closeOnDocumentClick>
+                                <ChatOptions>
+                                    <div onClick={()=>leaveChat(item._id)}>Leave Chat</div>
+                                </ChatOptions>
+                            </Popup>
+                        </OneFifthGrid>)
 
                 })}
                 <FloatingButton onClick={()=> createNewChat()}><div>+</div></FloatingButton>
