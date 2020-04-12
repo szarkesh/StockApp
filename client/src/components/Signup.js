@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from './Header'
-import {PRIMARY, SECONDARY, DARKER, HIGHLIGHT, API_ENDPOINT} from './Constants'
+import {PRIMARY, SECONDARY, DARKER, HIGHLIGHT} from './Constants'
 import { Carousel } from 'react-bootstrap'
 
 const Container = styled.div`
@@ -122,13 +122,13 @@ function Signup(){
   let [login, setLogin] = React.useState(false);
 
   React.useEffect(() => {
-    // fetch('${API_ENDPOINT}/user/current').then((data)=>data.json()).then((res)=>{
+    // fetch('/user/current').then((data)=>data.json()).then((res)=>{
     //   if(res==="no user found"){
     //     window.location.href="/signup"
     //   }
     // });
 
-    fetch(`${API_ENDPOINT}/user/current`,{
+    fetch(`/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
       if(res!=="NO USER FOUND"){
@@ -148,7 +148,7 @@ function Signup(){
       window.alert('username or password too short')
     }
     else{
-      fetch(`${API_ENDPOINT}/user/signup`, {
+      fetch(`/user/signup`, {
         method:'post',
         credentials:'include',
         headers: {
@@ -169,14 +169,14 @@ function Signup(){
   }
 
   let handleLogin = (e) => {
-  //  fetch('${API_ENDPOINT}/user/test');
+  //  fetch('/user/test');
     const user = e.target[0].value;
     const pass = e.target[1].value;
     if(user.length < 1 || pass.length < 1){
       window.alert('username or password too short')
     }
     else{
-      fetch(`${API_ENDPOINT}/user/login`, {
+      fetch(`/user/login`, {
         method:'post',
         credentials: 'include',
         headers: {

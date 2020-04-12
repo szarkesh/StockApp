@@ -77,7 +77,7 @@ function NewChat({chats, getAllChats, getChat, setNewChat, setActiveChat}){
   let searchRef = React.createRef(null);
 
   const updateResults = (e) => {
-    fetch(`${API_ENDPOINT}/chat/getUsername?username=${e.target.value}`,{
+    fetch(`/chat/getUsername?username=${e.target.value}`,{
       credentials:'include',
     }).then((res)=>res.json()).then((data)=>{
       console.log(usernames);
@@ -95,7 +95,7 @@ function NewChat({chats, getAllChats, getChat, setNewChat, setActiveChat}){
         }
     }
     console.log('creating chat')
-    fetch(`${API_ENDPOINT}/chat/create`,{
+    fetch(`/chat/create`,{
       credentials:'include',
       method:'post',
       headers: {

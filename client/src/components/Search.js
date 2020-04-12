@@ -164,7 +164,7 @@ function Search({user}){
       setCompanies(data);
     })
     console.log(document.cookie);
-    fetch(`${API_ENDPOINT}/api/watchlist`,{
+    fetch(`/api/watchlist`,{
       credentials:'include'
     }).then((data)=>data.json()).then((res)=>setWatchlist(res.watchlist));
   }, []);
@@ -304,7 +304,7 @@ function Search({user}){
   let addToWatchlist = (elem) => {
     let ans = elem.toUpperCase();
     setWatchlist([...watchlist, ans]);
-    fetch(`${API_ENDPOINT}/api/watchlist/add`, {
+    fetch(`/api/watchlist/add`, {
       method:'post',
       credentials:'include',
       headers: {
@@ -322,7 +322,7 @@ function Search({user}){
       setWatchlist([...watchlist.slice(0,index),
           ...watchlist.slice(index+1,watchlist.length)]);
     }
-    fetch(`${API_ENDPOINT}/api/watchlist/remove`, {
+    fetch(`/api/watchlist/remove`, {
       method:'post',
       credentials:'include',
       headers: {

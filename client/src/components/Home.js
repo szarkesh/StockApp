@@ -151,11 +151,11 @@ function Home({user}){
 
   React.useEffect(() => {
     setMostTraded(['AAPL','FB', 'GOOG', 'BERK'])
-    // fetch(`${API_ENDPOINT}/user/current`,{
+    // fetch(`/user/current`,{
     //     credentials:'include'
     // }).then(data=>data.json()).then((res)=>setUser(user));
 
-    fetch(`${API_ENDPOINT}/api/watchlist`,{
+    fetch(`/api/watchlist`,{
       credentials:'include'
     }).then((data)=>data.json()).then((res)=>{
       setWatchlist(res.watchlist);

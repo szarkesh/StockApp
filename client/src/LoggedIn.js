@@ -7,7 +7,7 @@ import Home from './components/Home'
 import Chat from './components/Chat'
 import FadeIn from 'react-fade-in'
 import {Button, Popover, OverlayTrigger} from 'react-bootstrap';
-import {API_ENDPOINT, PRIMARY} from './components/Constants'
+import {PRIMARY} from './components/Constants'
 
 const LeftBarContainer = styled.div`
   display: flex;
@@ -69,7 +69,7 @@ const BottomBarContainer = styled.div`
 `
 
 const logout = () => {
-  fetch(`${API_ENDPOINT}/user/logout`,{method:"post", credentials:"include"}).then((data)=>data.json()).then((res)=>{
+  fetch(`/user/logout`,{method:"post", credentials:"include"}).then((data)=>data.json()).then((res)=>{
     if(res==="success"){
       window.location.href ="/signup"
     }
@@ -87,7 +87,7 @@ function LoggedIn(){
 
   React.useEffect(() => {
 
-    fetch(`${API_ENDPOINT}/user/current`,{
+    fetch(`/user/current`,{
       credentials:"include"
     }).then((data)=>data.json()).then((res)=>{
       console.log(res);

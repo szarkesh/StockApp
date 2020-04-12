@@ -119,7 +119,7 @@ function News(){
       }
   }
   React.useEffect(()=>{
-     fetch(`${API_ENDPOINT}/api/topics`,{
+     fetch(`/api/topics`,{
          credentials:"include"
      }).then((res)=>res.json()).then((data)=>{
          console.log('data is ' + JSON.stringify(data));

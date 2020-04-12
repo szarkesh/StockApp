@@ -75,7 +75,7 @@ function KeywordAdder({sendBack}){
   let searchRef = React.createRef(null);
 
   React.useEffect(()=>{
-     fetch(`${API_ENDPOINT}/api/topics`,{
+     fetch(`/api/topics`,{
          credentials:"include"
      }).then((res)=>res.json()).then((data)=>{
          console.log('data is ' + JSON.stringify(data));
@@ -84,7 +84,7 @@ function KeywordAdder({sendBack}){
  }, []);
 
   const updateResults = (e) => {
-    fetch(`${API_ENDPOINT}/api/searchTopics?topic=${e.target.value}`,{
+    fetch(`/api/searchTopics?topic=${e.target.value}`,{
       credentials:'include',
     }).then((res)=>res.json()).then((data)=>{
         setResults(data.filter(x=>!keywords.includes(x.name)));
@@ -96,7 +96,7 @@ function KeywordAdder({sendBack}){
       setResults([]);
       searchRef.value = "";
       searchRef.focus();
-      fetch(`${API_ENDPOINT}/api/topics/add`, {
+      fetch(`/api/topics/add`, {
         method:'post',
         credentials:'include',
         headers: {
@@ -113,7 +113,7 @@ function KeywordAdder({sendBack}){
         setKeywords([...keywords.slice(0,index),
             ...keywords.slice(index+1,keywords.length)]);
       }
-      fetch(`${API_ENDPOINT}/api/topics/remove`, {
+      fetch(`/api/topics/remove`, {
         method:'post',
         credentials:'include',
         headers: {

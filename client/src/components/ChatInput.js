@@ -45,7 +45,7 @@ function ChatInput({activeChat, sendChat, inputRef}){
     let [timeoutHandle, setTimeoutHandle] = React.useState(0);
 
     React.useEffect(()=>{
-        fetch(`${API_ENDPOINT}/chat/${isTyping ? 'add' : 'remove'}Typer`, {
+        fetch(`/chat/${isTyping ? 'add' : 'remove'}Typer`, {
           credentials:"include",
           method:'post',
           headers: {

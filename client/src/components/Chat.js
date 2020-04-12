@@ -149,7 +149,7 @@ function Chat({user}){
   //let currChatRef = React.useRef();
 
   let getAllChats = () => {
-    fetch(`${API_ENDPOINT}/chat/allChats`, {
+    fetch(`/chat/allChats`, {
       credentials:"include"
     }).then((res)=>res.json()).then((data)=>{
       setChats(data);
@@ -186,7 +186,7 @@ function Chat({user}){
   let getChat = (id) => {
     setNewChat(false);
     if(id){
-      fetch(`${API_ENDPOINT}/chat/getChat`, {
+      fetch(`/chat/getChat`, {
         method:'post',
         credentials:'include',
         headers: {
@@ -212,7 +212,7 @@ function Chat({user}){
   }
 
   let switchChat = (id) => {
-      fetch(`${API_ENDPOINT}/chat/removeTyper`, {
+      fetch(`/chat/removeTyper`, {
         credentials:"include",
         method:'post',
         headers: {
@@ -228,7 +228,7 @@ function Chat({user}){
   let sendChat = (chatId, message) => {
     console.log('sending chat');
     setActiveData({...activeData, content: [...activeData.content, {unsent: true, content: message, sender:user, time: Date.now()}]})
-    fetch(`${API_ENDPOINT}/chat/message`, {
+    fetch(`/chat/message`, {
       method: 'post',
       credentials: 'include',
       headers: {
