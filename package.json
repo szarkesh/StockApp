@@ -2,9 +2,9 @@
   "name": "stockapp",
   "version": "1.0.0",
   "description": "Root directory package json",
-  "main": "server/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server/index.js",
+    "start": "node index.js",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "repository": {
