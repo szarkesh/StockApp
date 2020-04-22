@@ -10,6 +10,7 @@ const UserSchema = new Schema(
         last: { type: String, required: true },
         watchlist: {type: [String], required: false},
         topics: {type: [String], required: false},
+        profPic: {type: String, required: false}
     },
 )
 

@@ -65,6 +65,18 @@ router.post('/logout', function(req, res, next){
   res.send(JSON.stringify("success"));
 })
 
+router.post('/setProfPic', function(req, res, next){
+  User.findOneAndUpdate({_id:req.session.user._id},{profPic:req.body.picURL}, function(err, result){
+      if(err){
+          res.send(JSON.stringify("error"))
+      }
+      else{
+          req.session.user.profPic = req.body.picURL;
+          res.send(JSON.stringify("success"));
+      }
+  })
+})
+
 router.get('/current', function(req, res, next){
   console.log('curr user is ' + req.session.user);
   if(req.session.user){
@@ -73,7 +85,6 @@ router.get('/current', function(req, res, next){
   else{
       res.send(JSON.stringify("NO USER FOUND"));
   }
-
 });
 //
 // router.get('/logout', isAuthenticated, function(req, res, next) {

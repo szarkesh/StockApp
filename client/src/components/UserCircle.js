@@ -1,28 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import {DEFAULTSHADOW} from './Constants'
+import {OverlayTrigger, Popover, Tooltip} from 'react-bootstrap'
+//import Circle from './Circle'
+
 
 const Container = styled.div`
-`
-
-const Circle = styled.div`
-    border-radius: 50%;
-    background: #999999;
-    text-transform: uppercase;
-    position: relative;
-    width: ${props=>props.size*2}px;
-    height: ${props=>props.size*2}px;
-    ${props=>props.shadow && ("box-shadow: " + DEFAULTSHADOW + ";")}
-    span{
-        color: #EEEEEE  ;
-        font-size: ${props=>props.size}px;
-        display: block;
-        margin: auto;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%,-50%);
-    }
 `
 
 const OneByTwo = styled.div`
@@ -54,30 +37,90 @@ const Triangle = styled.div`
     align-items: center;
 `
 
-function UserCircle({usernames, size}){
+
+const CircleContainer = styled.div`
+    border-radius: 50%;
+    background: #999999;
+    text-transform: uppercase;
+    position: relative;
+    width: ${props=>props.size*2}px;
+    height: ${props=>props.size*2}px;
+    ${props=>props.shadow && ("box-shadow: " + DEFAULTSHADOW + ";")}
+    span{
+        color: #EEEEEE  ;
+        font-size: ${props=>props.size}px;
+        display: block;
+        margin: auto;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%,-50%);
+    }
+`
+
+
+const ImageHolder = styled.div`
+    position: relative;
+    width: ${props=>props.size*2}px;
+    height: ${props=>props.size*2}px;
+    cursor: pointer;
+    img{
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+`
+
+function UserCircle({usernames, profileMap, size}){
+
+
+    const Circle = ({name, size, shadow})=>(
+        <OverlayTrigger
+            placement={'right'}
+            delay={{ show: 200, hide: 500 }}
+            overlay={
+                <Popover id="popover-basic">
+                  <Popover.Title as="h3">{name}</Popover.Title>
+                  <Popover.Content>
+                    Joined April 2020.
+                  </Popover.Content>
+                </Popover>
+                }
+          >
+            {profileMap && profileMap[name] ?
+                 <ImageHolder size={size}><img src={profileMap[name]}/></ImageHolder>
+             :
+             <CircleContainer size={size} shadow={shadow}><span>{name.substring(0,2)}</span></CircleContainer>
+         }
+        </OverlayTrigger>
+    )
+
     if(usernames.length===0){
         return <Container></Container>
     }
     if (usernames.length===1) {
         return (
-            <Circle size={size || "25"}><span>{usernames[0].substring(0,2)}</span></Circle>
+            <Circle size={size || "25"} name={usernames[0]}></Circle>
         )
     }
     else if (usernames.length==2){
         return (
             <OneByTwo>
-                <Circle size="22"><span>{usernames[0].substring(0,2)}</span></Circle>
-                <Circle shadow style={{marginLeft:"20px"}} size="22"><span>{usernames[1].substring(0,2)}</span></Circle>
+                <Circle size="22" name={usernames[0]}></Circle>
+                <Circle style={{marginLeft:"20px"}} size="22" name={usernames[1]}></Circle>
             </OneByTwo>
         )
     }
-    else if (usernames.length==3){
+    else if (usernames.length===3){
         return (
             <Container>
                 <Triangle>
-                    <Circle size="15"><span>{usernames[0].substring(0,2)}</span></Circle>
-                    <Circle size="15"><span>{usernames[1].substring(0,2)}</span></Circle>
-                    <Circle size="15"><span>{usernames[2].substring(0,2)}</span></Circle>
+                    {usernames.map((username)=><Circle size="15" name={username}></Circle>)}
                 </Triangle>
             </Container>
         )
@@ -86,7 +129,7 @@ function UserCircle({usernames, size}){
         return (
             <Container>
                 <TwoByTwo>
-                    {usernames.map((username)=><Circle size="15"><span><span>{username.substring(0,2)}</span></span></Circle>)}
+                    {usernames.map((username)=><Circle size="15" name={username}></Circle>)}
                 </TwoByTwo>
             </Container>
         )
@@ -95,8 +138,8 @@ function UserCircle({usernames, size}){
         return (
             <Container>
                 <TwoByTwo>
-                    {usernames.slice(0,3).map((username)=><Circle size="15"><span><span>{username.substring(0,2)}</span></span></Circle>)}
-                    <Circle size="15"><span>+{usernames.length-3}</span></Circle>
+                    {usernames.slice(0,3).map((username)=><Circle size="15" name={username}></Circle>)}
+                    <Circle size="15" name={`+${usernames.length-3}`}></Circle>
                 </TwoByTwo>
             </Container>
         )

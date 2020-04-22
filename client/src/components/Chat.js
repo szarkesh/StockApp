@@ -181,6 +181,8 @@ function Chat({user}){
 
   let [newChat, setNewChat] = React.useState(false);
 
+  let [profMap, setProfMap] = React.useState(false);
+
   let [typers, setTypers] = React.useState([]);
 
   let inputRef = React.useRef();
@@ -201,11 +203,12 @@ function Chat({user}){
     });
   }
   React.useEffect(()=>{
+      fetch("/chat/profPics", {
+          credentials:"include"
+      }).then((res)=>res.json()).then((data)=>{
+          setProfMap(data);
+      });
       getAllChats();
-    // const interval2 = setInterval(() => {
-    //       getAllChats();
-    //       console.log('got intervals')
-    // }, 1000);
 }, []);
 
   React.useEffect(()=>{
@@ -325,7 +328,7 @@ function Chat({user}){
                     return (
                         <OneFifthGrid key={item["users"].join(', ')} active={activeChat === item._id}>
                             <Center onClick={()=>switchChat(item["_id"])}>
-                                <UserCircle usernames={item["users"]}/>
+                                <UserCircle profileMap={profMap} usernames={item["users"]}/>
                             </Center>
                             <PreviewStyle onClick={()=>switchChat(item["_id"])}>
                                 <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>

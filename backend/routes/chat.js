@@ -37,6 +37,16 @@ router.post("/message", function(req, res, next){
     })
 })
 
+router.get("/profPics", function(req, res, next){
+    var profMap = {}
+    User.find({}, function (err, users) {
+        users.forEach((user)=>{
+            profMap[user.user] = user.profPic
+        });
+        res.send(profMap)
+    });
+});
+
 router.get("/allChats", function(req, res, next){
 
     Chat.find({users: req.session.user._id} , '_id last_message seeners users', function(err, chats){

@@ -225,10 +225,10 @@ function Home({user}){
   let changeString = (change, direction) => {
       if(change!=="-"){
           if(direction){
-              return (change > 0 ? "+" : "") + parseFloat(change).toFixed(2)+"%"
+              return (change > 0 ? "+" : "") + (parseFloat(change)*100).toFixed(2)+"%"
           }
           else{
-              return parseFloat(Math.abs(change)).toFixed(2)+"%"
+              return parseFloat(Math.abs(change)*100).toFixed(2)+"%"
           }
 
       }
@@ -247,7 +247,7 @@ function Home({user}){
           </WatchListItem>
           <div>
               <i className="fas fa-chart-line"></i>
-              <StockMovement className="movement" value={price}><span className="price">{parseFloat(price).toFixed(2)}</span><span className="change">{changeString(change, true)}</span></StockMovement>
+              <StockMovement className="movement" value={change}><span className="price">{parseFloat(price).toFixed(2)}</span><span className="change">{changeString(change, true)}</span></StockMovement>
           </div>
       </LeftRight>
   )}
@@ -257,7 +257,7 @@ function Home({user}){
   return (
     isLoaded ?
         (<Container>
-          <Header>{greeting}, {user.first}. The S&P 500 is <Indicator value={watchlistPrices["changes"]["SPY"]}> up {changeString(watchlistPrices["changes"]["SPY"], false)} </Indicator> today.</Header>
+          <Header>{greeting}, {user.first}. The S&P 500 is <Indicator value={watchlistPrices["changes"]["SPY"]}> {watchlistPrices["changes"]["SPY"] > 0 ? "up" : "down"} {changeString(watchlistPrices["changes"]["SPY"], false)} </Indicator> today.</Header>
           <Grid>
             <Left>
               <WatchList>

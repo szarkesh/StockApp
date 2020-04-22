@@ -92,6 +92,8 @@ const logout = () => {
   })
 }
 
+const paths = ["/search", "/home", "/news",  "/chat", "/profile"]
+
 
 function LoggedIn(){
   const [tab, setTab] = React.useState(1);
@@ -111,7 +113,24 @@ function LoggedIn(){
         setUser(res);
       }
     });
+
+    if(window.location.pathname==="/search"){
+        setTab(0);
+    }
+    else if(window.location.pathname==="/chat"){
+        setTab(3);
+    }
+    else if(window.location.pathname==="/news"){
+        setTab(2);
+    }
+    else if(window.location.pathname==="/profile"){
+        setTab(4);
+    }
 },[])
+
+React.useEffect(()=>{
+    window.history.pushState('Avana', 'Avana', paths[tab]);
+},[tab])
 
   return (
     <div>{user &&
