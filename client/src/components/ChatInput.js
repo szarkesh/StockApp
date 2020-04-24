@@ -36,11 +36,17 @@ const EmojiButton = styled.button`
     }
 `
 
+const UploadBtn = styled(EmojiButton)`
+    right: 30px;
+`
+
 function ChatInput({activeChat, sendChat, inputRef}){
 
     let [emojis, setEmojis] = React.useState(false);
 
     let [isTyping, setIsTyping] = React.useState(true);
+
+    let filePicker = React.useRef();
 
     let [timeoutHandle, setTimeoutHandle] = React.useState(0);
 
@@ -60,8 +66,7 @@ function ChatInput({activeChat, sendChat, inputRef}){
         window.clearTimeout(timeoutHandle);
         setIsTyping(false);
         setEmojis(false);
-        sendChat(activeChat, e.target.value);
-        e.target.value = "";
+        sendChat(activeChat, inputRef.current.value);
       }
       else{
           setIsTyping(true);
@@ -77,11 +82,27 @@ function ChatInput({activeChat, sendChat, inputRef}){
         inputRef.current.focus();
     }
 
+    const uploadChatPic = (file) => {
+        if(file){
+            const formData = new FormData();
+            formData.append('element1','Example text')
+            formData.append('element2',file)
+            fetch('/api/upload', {
+                method:'post',
+                body:formData
+            }).then((res)=>res.json()).then((res)=>{
+                sendChat(activeChat, inputRef.current.value, `/api/getFile?filename=${res}`);
+            })
+        }
+    }
+
     return (
         <ChatInputContainer>
                           <ChatInputStyle key={activeChat} ref={inputRef} onKeyDown={checkSubmit} autoFocus placeholder="Type away..."/>
+                          <UploadBtn onClick={()=>filePicker.current.click()}><i className="fas fa-file-upload"></i></UploadBtn>
                           <EmojiButton onClick={()=>setEmojis(!emojis)}><i className="far fa-smile-beam"></i></EmojiButton>
-                          {emojis && <Picker onEmojiClick={onEmojiClick}/>}
+                          <input ref={filePicker} style={{ display: "none" }} type="file" name="file" onChange={(event)=>uploadChatPic(event.target.files[0])}/>
+                          {emojis && <Picker style={{marginBottom:"20px"}} onEmojiClick={onEmojiClick}/>}
       </ChatInputContainer>)
 }
 

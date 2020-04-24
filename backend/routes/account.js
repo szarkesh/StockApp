@@ -6,7 +6,6 @@ const saltRounds = 10;
 
 var User = require('../models/user-model.js')
 
-
 router.post('/signup', function(req, res, next) {
 
   User.find({user: req.body.username}, function(err, result) {

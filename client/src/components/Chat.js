@@ -290,8 +290,8 @@ function Chat({user}){
 
 
 
-  let sendChat = (chatId, message) => {
-    console.log('sending chat');
+  let sendChat = (chatId, message, image) => {
+    inputRef.current.value = "";
     setActiveData({...activeData, content: [...activeData.content, {unsent: true, content: message, sender:user, time: Date.now()}]})
     fetch(`/chat/message`, {
       method: 'post',
@@ -299,7 +299,7 @@ function Chat({user}){
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({_id: chatId, "messageContent": message})
+      body: JSON.stringify({_id: chatId, "messageContent": message, image: image})
   }).then((res)=>res.json()).then((data)=>{
       setMustScrollDown(true);
       getChat(chatId);

@@ -16,6 +16,7 @@ const MessageSchema = new Schema(
     {
         sender: { type: String, required: true },
         content: { type: String, required: true},
+        image: { type: String, required: false},
         time : { type : Date, default: Date.now }
     },
 )

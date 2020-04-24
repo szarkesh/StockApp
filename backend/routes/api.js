@@ -2,6 +2,35 @@ const express = require('express')
 var router = express.Router()
 var User = require('../models/user-model.js')
 var Topic = require('../models/topic.js')
+const Busboy = require('busboy')
+const AWS = require('aws-sdk')
+const uuid = require('uuid/v1')
+
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS || require('../../config.js').iamUser;
+const AWS_SECRET_KEY = process.env.AWS_SECRET || require('../../config.js').iamSecret;
+
+function uploadToS3(file, name){
+    let s3bucket = new AWS.S3({
+        accessKeyId: AWS_ACCESS_KEY,
+        secretAccessKey: AWS_SECRET_KEY,
+        Bucket: "avana-io-bucket"
+    })
+    s3bucket.createBucket(function(){
+        var params = {
+            Bucket: "avana-io-bucket",
+            Key: name,
+            Body: file.data
+        };
+        s3bucket.upload(params, function(err, data){
+            if(err){
+                console.log('error in callback');
+                console.log(err);
+            }
+            console.log('success');
+            console.log(data);
+        })
+    })
+}
 
 router.get('/user/getUsers', function(_, res, next) {
   User.find({}, function(err, result) {
@@ -10,6 +39,47 @@ router.get('/user/getUsers', function(_, res, next) {
     }
     res.send(result);
   })
+})
+
+router.post('/upload', function(req, res, next){
+    const element1 = req.body.element1;
+    var busboy = new Busboy({headers: req.headers});
+    console.log('getting upload')
+    busboy.on('finish', function(){
+         console.log("upload finihsed")
+         const file = req.files.element2;
+         console.log(file)
+         const fileName = uuid()+'.png';
+         uploadToS3(file, fileName);
+         res.send(JSON.stringify(fileName));
+     })
+    req.pipe(busboy);
+})
+
+router.get('/getFile', function(req, res, next){
+    let s3bucket = new AWS.S3({
+        accessKeyId: AWS_ACCESS_KEY,
+        secretAccessKey: AWS_SECRET_KEY,
+        Bucket: "avana-io-bucket"
+    })
+    s3bucket.createBucket(function(){
+        var params = {
+            Bucket: "avana-io-bucket",
+            Key: req.query.filename,
+        };
+        s3bucket.getObject(params, function(err, data){
+            if(err){
+                console.log('error in callback');
+                console.log(err);
+            }
+            if(data){
+                res.send(data.Body);
+            }
+            else{
+                res.send(null);
+            }
+        })
+    })
 })
 
 router.get('/add', function(req, res, next) {

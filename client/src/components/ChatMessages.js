@@ -49,7 +49,21 @@ const EmptyText = styled(CenteredText)`
     font-size: 15px;
 `
 
+const ImageContainer = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: ${props=>props.sent ? "flex-end" : "flex-start"};
+    margin: 10px 0px;
+    img{
+        border-radius: 15px;
+        border: 1px solid #CCCCCC;
+    }
+`
+
 let stringify = (str) => {
+      if(!str){
+          return undefined;
+      }
       var urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
 
       // www. sans http:// or https://
@@ -68,21 +82,28 @@ function ChatMessages({data, user}){
             <>
                 {data && data.content.slice(0).reverse().map((item, idx, arr) =>
                     <>
-                        <ChatBubbleContainer timePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000} sent={user===item.sender}>
-                            <OverlayTrigger
+                        {item.image &&
+                            <ImageContainer sent={user===item.sender}>
+                                <img width="500" src={item.image}/>
+                            </ImageContainer>
+                        }
+                        {/\S/.test(item.content) &&
+                            <ChatBubbleContainer onClick={(e)=>e.stopPropagation()} imePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000} sent={user===item.sender}>
+                                <OverlayTrigger
                                 placement={user===item.sender ? 'left' : 'right'}
                                 overlay={
                                   <Tooltip id={`tooltip`}>
                                     <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
                                   </Tooltip>
                                     }
-                              >
-                            <ChatBubble
+                                >
+                                    <ChatBubble
                                         sent={user===item.sender}
                                         key={idx} dangerouslySetInnerHTML={{__html: stringify(item.content)}}></ChatBubble>
-                            </OverlayTrigger>
-                            {(item.sender===user && idx < 5) && (item.unsent ? <i className="far fa-check-circle"></i> : <i className="fas fa-check-circle"></i>)}
-                        </ChatBubbleContainer>
+                                </OverlayTrigger>
+                                {(item.sender===user && idx < 5) && (item.unsent ? <i className="far fa-check-circle"></i> : <i className="fas fa-check-circle"></i>)}
+                            </ChatBubbleContainer>
+                        }
                         {(idx !== 0 && (idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000)) &&
                             <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
                         }

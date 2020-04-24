@@ -59,6 +59,16 @@ const ImageHolder = styled.div`
     }
 `
 
+const UploadBtn = styled.i`
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 25px;
+    cursor: pointer;
+    background: ${PRIMARY};
+    border-radius: 50%;
+`;
+
 const logout = () => {
   fetch(`/user/logout`,{method:"post", credentials:"include"}).then((data)=>data.json()).then((res)=>{
     if(res==="success"){
@@ -78,6 +88,8 @@ function Profile({user}){
 
     let [selectedProfile, setSelectedProfile] = React.useState(false);
 
+    let input = React.useRef();
+
     let changeProf = (imageURL) => {
         fetch("/user/setProfPic",{
           credentials:'include',
@@ -95,16 +107,31 @@ function Profile({user}){
       });
     }
 
+    let uploadProfPic = (file) => {
+        if(file){
+            const formData = new FormData();
+            formData.append('element1','Example text')
+            formData.append('element2',file)
+            fetch('/api/upload', {
+                method:'post',
+                body:formData
+            }).then((res)=>res.json()).then((res)=>{
+                changeProf(`/api/getFile?filename=${res}`);
+            })
+        }
+    }
+
     return(
         <Container>
             <h1>Welcome to your profile, {user.first}</h1>
             <Flex>
                 <Container>
-                    <UserCircle size="100" usernames={[user.user]} profileMap={{[user.user]:user.profPic}}/>
+                    <UserCircle size="100" usernames={[user.user]} profileMap={{[user.user]: selectedProfile || user.profPic}}/>
                     <ProfChangeBtn onClick={()=>setChangingProfile(!changingProfile)}>Change your profile picture</ProfChangeBtn>
                     {changingProfile &&
                         <Row>
                             {imgList.map(imageURL=><ImageHolder active={imageURL==selectedProfile}><img onClick={()=>changeProf(imageURL)} src={imageURL}/></ImageHolder>)}
+                            <UploadBtn onClick={()=>input.current.click()} className="fas fa-file-upload"></UploadBtn>
                         </Row>
                     }
                 </Container>
@@ -119,6 +146,7 @@ function Profile({user}){
                     <Button onClick={()=>logout()}>Sign Out</Button>
                 </Container>
             </Flex>
+            <input ref={input} style={{ display: "none" }} type="file" name="file" onChange={(event)=>uploadProfPic(event.target.files[0])}/>
         </Container>
     )
 }

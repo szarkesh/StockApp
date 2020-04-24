@@ -26,7 +26,7 @@ router.post("/message", function(req, res, next){
     Chat.updateOne({_id: req.body._id},
                    { $set: { seeners: [req.session.user.user],
                                 last_message: {sender: req.session.user._id, content:req.body.messageContent}},
-                    $push: {content: {sender: req.session.user._id, content:req.body.messageContent}}},
+                    $push: {content: {sender: req.session.user._id, image:req.body.image, content:req.body.messageContent}}},
                     function(err, result){
       if(err){
         res.send(err);
@@ -78,7 +78,7 @@ router.post("/getChat", function(req, res, next){
             users.forEach((user)=>{
                 userMap[user._id] = user.user;
             })
-            let out = chat.content.map((message)=>({content: message.content, sender: userMap[message.sender], time:message.time}))
+            let out = chat.content.map((message)=>({content: message.content, image: message.image, sender: userMap[message.sender], time:message.time}))
             let parsedTypers = chat.typers.filter((user)=>userMap[user]!==req.session.user.user).map((user)=>userMap[user])
             res.send(JSON.stringify({_id: chat._id, typers:parsedTypers, users:chat.users, content: out}));
           }

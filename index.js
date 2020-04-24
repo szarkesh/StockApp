@@ -11,8 +11,18 @@ var os = require('os');
 var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
 var User = require('./backend/models/user-model.js')
 const MongoStore = require('connect-mongo')(session);
+var bb = require('express-busboy');
 
-const app = express()
+const busboy = require('connect-busboy');
+const busboyBodyParser = require('busboy-body-parser')
+
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(busboy());
+app.use(busboyBodyParser());
+
 
 app.use(redirectToHTTPS([/localhost:(\d{4})/]));
 
@@ -45,7 +55,6 @@ app.use(session({ secret: 'keyboard cat',
                         },
                 store: new MongoStore({mongooseConnection: mongoose.connection})}))
 
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
     res.header('X-Forwarded-Proto', 'https');
@@ -58,7 +67,6 @@ app.use(cors({
   origin: isLocal ? 'http://localhost:3000':'https://www.avana.io',
   credentials: true
 }));
-app.use(bodyParser.json());
 
 app.use('/api',apiRoutes);
 app.use('/user',accountRoutes);
