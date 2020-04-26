@@ -5,9 +5,17 @@ var Topic = require('../models/topic.js')
 const Busboy = require('busboy')
 const AWS = require('aws-sdk')
 const uuid = require('uuid/v1')
+const dotenv = require('dotenv');
+var os = require('os');
 
-const AWS_ACCESS_KEY = process.env.AWS_ACCESS || require('../../config.js').iamUser;
-const AWS_SECRET_KEY = process.env.AWS_SECRET || require('../../config.js').iamSecret;
+const isLocal = os.hostname().indexOf('local') > -1;
+
+if (isLocal) {
+  dotenv.config();
+}
+
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS;
+const AWS_SECRET_KEY = process.env.AWS_SECRET;
 
 function uploadToS3(file, name){
     let s3bucket = new AWS.S3({

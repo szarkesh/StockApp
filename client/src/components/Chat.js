@@ -171,6 +171,23 @@ const ChatOptions = styled.div`
     }
 `
 
+const ImageContainer = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #333333BB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    img{
+        width: 60%;
+        transform: scale(0.5);
+    }
+`
+
 function Chat({user}){
 
   let [chats, setChats] = React.useState([]);
@@ -191,6 +208,8 @@ function Chat({user}){
   let [scrollTop, setScrollTop] = React.useState(0);
 
   let [mustScrollDown, setMustScrollDown] = React.useState(false);
+
+  let [openImage, setOpenImage] = React.useState(null);
 
   //let currChatRef = React.useRef();
 
@@ -313,6 +332,9 @@ function Chat({user}){
   let sortedChats = chats.concat().sort((b,a)=>(a["last_message"] && b["last_message"]) ? (new Date(a["last_message"].time) - new Date(b["last_message"].time)) : -1);
 
 
+  // if(openImage){
+  //     return
+  // }
 
   return (
     <Container>
@@ -353,7 +375,7 @@ function Chat({user}){
                   <>
                     <ChatViewContainer>
                         {typers && typers.map((item) => <TypingPreview>&nbsp;<Dot kf={dot1Key} left="7px"></Dot><Dot kf={dot2Key} left="16px"></Dot><Dot kf={dot3Key} left="25px"></Dot></TypingPreview>)}
-                        <ChatMessages user={user} data={activeData}/>
+                        <ChatMessages user={user} data={activeData} setOpenImage={setOpenImage}/>
                     </ChatViewContainer>
                     <ChatInput activeChat={activeChat} inputRef={inputRef} sendChat={sendChat}/>
                  </>
@@ -362,6 +384,9 @@ function Chat({user}){
           </div>
         </RightHalf>
       </Flex>
+      {openImage && <ImageContainer onClick={()=>setOpenImage(null)}>
+                        <img src={openImage} onClick={(e)=>e.stopPropagation()}/>
+                </ImageContainer>}
     </Container>
   )
 }

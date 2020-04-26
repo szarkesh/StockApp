@@ -116,7 +116,9 @@ function Profile({user}){
                 method:'post',
                 body:formData
             }).then((res)=>res.json()).then((res)=>{
-                changeProf(`/api/getFile?filename=${res}`);
+                setTimeout(function(){ //set timeout to avoid race condition with server upload
+                    changeProf(`/api/getFile?filename=${res}`);
+                },1000)
             })
         }
     }

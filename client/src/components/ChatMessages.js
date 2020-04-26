@@ -77,13 +77,13 @@ let stringify = (str) => {
           .replace(emailAddressPattern, '<a target="_blank" href="mailto:$&">$&</a>');
 };
 
-function ChatMessages({data, user}){
+function ChatMessages({data, user, setOpenImage}){
     return (
             <>
                 {data && data.content.slice(0).reverse().map((item, idx, arr) =>
                     <>
                         {item.image &&
-                            <ImageContainer sent={user===item.sender}>
+                            <ImageContainer onClick={()=>setOpenImage(item.image)} sent={user===item.sender}>
                                 <img width="500" src={item.image}/>
                             </ImageContainer>
                         }

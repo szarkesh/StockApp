@@ -161,48 +161,54 @@ function Home({user}){
       setWatchlist(res.watchlist);
     })
 
-    if (document.getElementById("tickers")) {
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js'
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      "symbols": [{
-        "proName": "OANDA:SPX500USD",
-        "title": "S&P 500"
-      }, {
-        "proName": "OANDA:NAS100USD",
-        "title": "Nasdaq 100"
-      }, {
-        "proName": "FX_IDC:EURUSD",
-        "title": "EUR/USD"
-      }, {
-        "proName": "BITSTAMP:BTCUSD",
-        "title": "BTC/USD"
-      }, {
-        "proName": "BITSTAMP:ETHUSD",
-        "title": "ETH/USD"
-      }],
-      "colorTheme": "light",
-      "isTransparent": false,
-      "displayMode": "adaptive",
-      "width":"300px",
-    });
-    document.getElementById("tickers").appendChild(script);
-    }
-
-    if(document.getElementById("calendar")) {
-      const script2 = document.createElement('script');
-      script2.src = 'https://s3.tradingview.com/external-embedding/embed-widget-events.js'
-      script2.async = true;
-      script2.innerHTML = JSON.stringify({
-        "colorTheme":"light",
-        "height": 535,
-        "width":300
-      });
-      document.getElementById("calendar").appendChild(script2);
-    }
-
   }, []);
+
+  React.useEffect(()=>{
+      loadTickers()
+  }, [isLoaded]);
+
+  const loadTickers = () => {
+      if (document.getElementById("tickers")) {
+          const script = document.createElement('script');
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js'
+          script.async = true;
+          script.innerHTML = JSON.stringify({
+            "symbols": [{
+              "proName": "OANDA:SPX500USD",
+              "title": "S&P 500"
+            }, {
+              "proName": "OANDA:NAS100USD",
+              "title": "Nasdaq 100"
+            }, {
+              "proName": "FX_IDC:EURUSD",
+              "title": "EUR/USD"
+            }, {
+              "proName": "BITSTAMP:BTCUSD",
+              "title": "BTC/USD"
+            }, {
+              "proName": "BITSTAMP:ETHUSD",
+              "title": "ETH/USD"
+            }],
+            "colorTheme": "light",
+            "isTransparent": false,
+            "displayMode": "adaptive",
+            "width":"300px",
+          });
+          document.getElementById("tickers").appendChild(script);
+      }
+
+      if(document.getElementById("calendar")) {
+        const script2 = document.createElement('script');
+        script2.src = 'https://s3.tradingview.com/external-embedding/embed-widget-events.js'
+        script2.async = true;
+        script2.innerHTML = JSON.stringify({
+          "colorTheme":"light",
+          "height": 535,
+          "width":300
+        });
+        document.getElementById("calendar").appendChild(script2);
+      }
+  }
 
   React.useEffect(()=>{
       if(watchlist!==undefined){

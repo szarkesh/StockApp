@@ -83,16 +83,25 @@ function ChatInput({activeChat, sendChat, inputRef}){
     }
 
     const uploadChatPic = (file) => {
-        if(file){
-            const formData = new FormData();
-            formData.append('element1','Example text')
-            formData.append('element2',file)
-            fetch('/api/upload', {
-                method:'post',
-                body:formData
-            }).then((res)=>res.json()).then((res)=>{
-                sendChat(activeChat, inputRef.current.value, `/api/getFile?filename=${res}`);
-            })
+        console.log("file size is " + file.size)
+        if(file && file.type.split("/")[0]==="image"){
+            if (file.size>5000000){
+                window.alert("Image must be under 5MB")
+            }
+            else{
+                const formData = new FormData();
+                formData.append('element1','Example text')
+                formData.append('element2',file)
+                fetch('/api/upload', {
+                    method:'post',
+                    body:formData
+                }).then((res)=>res.json()).then((res)=>{
+                    sendChat(activeChat, inputRef.current.value, `/api/getFile?filename=${res}`);
+                })
+            }
+        }
+        else{
+            window.alert("Only images are supported");
         }
     }
 
