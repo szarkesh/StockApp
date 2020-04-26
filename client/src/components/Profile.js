@@ -59,11 +59,16 @@ const ImageHolder = styled.div`
     }
 `
 
-const UploadBtn = styled.i`
+const UploadBtn = styled.div`
     width: 50px;
     height: 50px;
-    text-align: center;
-    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    i{
+        color: white;
+        font-size: 25px;
+    }
     cursor: pointer;
     background: ${PRIMARY};
     border-radius: 50%;
@@ -116,9 +121,7 @@ function Profile({user}){
                 method:'post',
                 body:formData
             }).then((res)=>res.json()).then((res)=>{
-                setTimeout(function(){ //set timeout to avoid race condition with server upload
-                    changeProf(`/api/getFile?filename=${res}`);
-                },1000)
+                changeProf(`/api/getFile?filename=${res}`);
             })
         }
     }
@@ -133,7 +136,7 @@ function Profile({user}){
                     {changingProfile &&
                         <Row>
                             {imgList.map(imageURL=><ImageHolder active={imageURL==selectedProfile}><img onClick={()=>changeProf(imageURL)} src={imageURL}/></ImageHolder>)}
-                            <UploadBtn onClick={()=>input.current.click()} className="fas fa-file-upload"></UploadBtn>
+                            <UploadBtn onClick={()=>input.current.click()}><i className="fas fa-file-upload"></i></UploadBtn>
                         </Row>
                     }
                 </Container>

@@ -178,15 +178,44 @@ const ImageContainer = styled.div`
     bottom: 0;
     right: 0;
     background: #333333BB;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    opacity: ${props=>props.opacity};
     height: 100vh;
+    transition: 0.2s all;
     img{
+        position: absolute;
+        margin: auto;
+        top:0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         width: 60%;
-        transform: scale(0.5);
+        transform: scale(${props=>props.scale});
+        transition: 0.2s all;
     }
 `
+
+const Centered = styled.div`
+    display: flex;
+    justify-content: center;
+`
+
+const ModalContainer = styled(ImageContainer)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #333333BB;
+`
+
+const Modal = styled.div`
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+`;
 
 function Chat({user}){
 
@@ -198,11 +227,18 @@ function Chat({user}){
 
   let [newChat, setNewChat] = React.useState(false);
 
+  let [imageAnimation, setImageAnimation] = React.useState(false);
+
   let [profMap, setProfMap] = React.useState(false);
+
+  let [activeRenameModal, setActiveRenameModal] = React.useState(null);
+   let [activeMembersModal, setActiveMembersModal] = React.useState(null);
 
   let [typers, setTypers] = React.useState([]);
 
   let inputRef = React.useRef();
+
+  let chatRenameInput = React.useRef();
 
 
   let [scrollTop, setScrollTop] = React.useState(0);
@@ -307,6 +343,21 @@ function Chat({user}){
     })
   }
 
+  let renameChat = (id, name) => {
+      fetch(`/chat/setChatName`, {
+          method: 'post',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({_id: id, name: name})
+      }).then((res)=>res.json()).then((data)=>{
+          if(data=="success"){
+              console.log("changed chat name");
+          }
+      })
+  }
+
 
 
   let sendChat = (chatId, message, image) => {
@@ -336,6 +387,12 @@ function Chat({user}){
   //     return
   // }
 
+  if(openImage && !imageAnimation){
+      setTimeout(function(){
+          setImageAnimation(true);
+      }, 0)
+  }
+
   return (
     <Container>
       <Flex>
@@ -353,13 +410,15 @@ function Chat({user}){
                                 <UserCircle profileMap={profMap} usernames={item["users"]}/>
                             </Center>
                             <PreviewStyle onClick={()=>switchChat(item["_id"])}>
-                                <ChatName seen={item.seen}>{item["users"].join(', ')}</ChatName>
+                                <ChatName seen={item.seen}>{item.name || item["users"].join(', ')}</ChatName>
                                 {item["last_message"] && <LastMsg seen={item.seen}>{item["last_message"].sender === user ? 'You' : item["last_message"].sender}: {item["last_message"].content}</LastMsg>}
                             </PreviewStyle>
                             <Popup style={{height:"20px"}} trigger={<Cog><i className="fas fa-cog"></i></Cog>}
                                 position="left"
                                 closeOnDocumentClick>
                                 <ChatOptions>
+                                    <div onClick={()=>setActiveRenameModal(item._id)}>Rename Chat</div>
+                                    <div onClick={()=>setActiveMembersModal(item._id)}>View Members</div>
                                     <div onClick={()=>leaveChat(item._id)}>Leave Chat</div>
                                 </ChatOptions>
                             </Popup>
@@ -384,9 +443,25 @@ function Chat({user}){
           </div>
         </RightHalf>
       </Flex>
-      {openImage && <ImageContainer onClick={()=>setOpenImage(null)}>
+      {openImage && <ImageContainer opacity={imageAnimation ? "1": "0"}  scale={imageAnimation ? "1" : "0.5"} onClick={()=>{setOpenImage(null); setImageAnimation(false);}}>
                         <img src={openImage} onClick={(e)=>e.stopPropagation()}/>
                 </ImageContainer>}
+      {activeRenameModal &&
+          <ModalContainer onClick={()=>setActiveRenameModal(null)}>
+              <Modal onClick={(e)=>e.stopPropagation()}>
+                <div>Rename chat to:</div>
+                <input ref={chatRenameInput} style={{margin:"10px", width:"200px"}} placeholder="Enter name here"/>
+                <Centered><Button onClick={()=>renameChat(activeRenameModal, chatRenameInput.current.value)}>Submit</Button></Centered>
+              </Modal>
+          </ModalContainer>
+      }
+      {activeMembersModal &&
+          <ModalContainer onClick={()=>setActiveMembersModal(null)}>
+              <Modal onClick={(e)=>e.stopPropagation()}>
+                <div>Chat Members</div>
+              </Modal>
+          </ModalContainer>
+      }
     </Container>
   )
 }

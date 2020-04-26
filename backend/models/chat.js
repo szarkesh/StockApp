@@ -24,6 +24,7 @@ const MessageSchema = new Schema(
 
 const Chat = new Schema(
     {
+        name: {type: String},
         users: { type: [Schema.ObjectId], ref: 'user'},
         content: { type: [MessageSchema], ref:'message'},
         typers: { type: [Schema.ObjectId], ref: 'user'}, // people who are currently typing

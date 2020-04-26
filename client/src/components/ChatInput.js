@@ -37,7 +37,7 @@ const EmojiButton = styled.button`
 `
 
 const UploadBtn = styled(EmojiButton)`
-    right: 30px;
+    right: 40px;
 `
 
 function ChatInput({activeChat, sendChat, inputRef}){
@@ -108,7 +108,7 @@ function ChatInput({activeChat, sendChat, inputRef}){
     return (
         <ChatInputContainer>
                           <ChatInputStyle key={activeChat} ref={inputRef} onKeyDown={checkSubmit} autoFocus placeholder="Type away..."/>
-                          <UploadBtn onClick={()=>filePicker.current.click()}><i className="fas fa-file-upload"></i></UploadBtn>
+                          <UploadBtn onClick={()=>filePicker.current.click()}><i className="fas fa-images"></i></UploadBtn>
                           <EmojiButton onClick={()=>setEmojis(!emojis)}><i className="far fa-smile-beam"></i></EmojiButton>
                           <input ref={filePicker} style={{ display: "none" }} type="file" name="file" onChange={(event)=>uploadChatPic(event.target.files[0])}/>
                           {emojis && <Picker style={{marginBottom:"20px"}} onEmojiClick={onEmojiClick}/>}

@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import UserCircle from './UserCircle';
 import {PRIMARY} from './Constants'
 
 const ChatBubble = styled.div`
@@ -19,8 +20,8 @@ const ChatBubbleContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: ${props=>props.sent ? 'flex-end' : 'flex-start'};
-  margin-left: 20px;
-  margin-right: 20px;
+  padding-left: 30px;
+  padding-right: 20px;
   margin-top: 1px;
   margin-bottom: ${props=>props.timePassed ? '10px' : '1px'};
   position: relative;
@@ -28,8 +29,13 @@ const ChatBubbleContainer = styled.div`
       color: ${PRIMARY};
       font-size: 12px;
       position: absolute;
-      right: -15px;
+      right: 7px;
       bottom: 1px;
+  }
+  .circle{
+      position: absolute;
+      bottom: 1px;
+      left: 0px;
   }
 `;
 
@@ -53,10 +59,16 @@ const ImageContainer = styled.div`
     width: 100%;
     display: flex;
     justify-content: ${props=>props.sent ? "flex-end" : "flex-start"};
-    margin: 10px 0px;
+    position: relative;
+    padding: 10px 10px 20px 30px;
     img{
         border-radius: 15px;
         border: 1px solid #CCCCCC;
+    }
+    .circle{
+        position: absolute;
+        left: 0px;
+        bottom: 20px;
     }
 `
 
@@ -85,15 +97,17 @@ function ChatMessages({data, user, setOpenImage}){
                         {item.image &&
                             <ImageContainer onClick={()=>setOpenImage(item.image)} sent={user===item.sender}>
                                 <img width="500" src={item.image}/>
+                                {(item.sender!==user && (idx === 0 || arr[idx-1].sender!==item.sender || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000)) &&  <div className="circle"> <UserCircle size="12" usernames={[item.sender]}></UserCircle></div>}
                             </ImageContainer>
                         }
                         {/\S/.test(item.content) &&
-                            <ChatBubbleContainer onClick={(e)=>e.stopPropagation()} imePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000} sent={user===item.sender}>
+                            <ChatBubbleContainer onClick={(e)=>e.stopPropagation()} timePassed={idx === 0 || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000} sent={user===item.sender}>
                                 <OverlayTrigger
                                 placement={user===item.sender ? 'left' : 'right'}
+                                delay={1000}
                                 overlay={
                                   <Tooltip id={`tooltip`}>
-                                    <strong>{(new Date(item.time)).toLocaleTimeString()}</strong>.
+                                    <strong>{(new Date(item.time)).toLocaleString()}</strong>.
                                   </Tooltip>
                                     }
                                 >
@@ -101,10 +115,11 @@ function ChatMessages({data, user, setOpenImage}){
                                         sent={user===item.sender}
                                         key={idx} dangerouslySetInnerHTML={{__html: stringify(item.content)}}></ChatBubble>
                                 </OverlayTrigger>
+                                {(item.sender!==user && (idx === 0 || arr[idx-1].sender!==item.sender || (new Date(arr[idx-1].time)) - (new Date(item.time)) > 30000)) &&  <div className="circle"> <UserCircle size="12" usernames={[item.sender]}></UserCircle></div>}
                                 {(item.sender===user && idx < 5) && (item.unsent ? <i className="far fa-check-circle"></i> : <i className="fas fa-check-circle"></i>)}
                             </ChatBubbleContainer>
                         }
-                        {(idx !== 0 && (idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000)) &&
+                        {(idx==arr.length-1 || (new Date(item.time)) - (new Date(arr[idx+1].time)) > 300000) &&
                             <CenteredText>{(new Date(arr[idx].time)).toLocaleTimeString([], { hour:'numeric', minute: '2-digit',hour12:true })}</CenteredText>
                         }
                     </>)}

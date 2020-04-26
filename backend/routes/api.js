@@ -58,8 +58,27 @@ router.post('/upload', function(req, res, next){
          const file = req.files.element2;
          console.log(file)
          const fileName = uuid()+'.png';
-         uploadToS3(file, fileName);
-         res.send(JSON.stringify(fileName));
+         let s3bucket = new AWS.S3({
+             accessKeyId: AWS_ACCESS_KEY,
+             secretAccessKey: AWS_SECRET_KEY,
+             Bucket: "avana-io-bucket"
+         })
+         s3bucket.createBucket(function(){
+             var params = {
+                 Bucket: "avana-io-bucket",
+                 Key: fileName,
+                 Body: file.data
+             };
+             s3bucket.upload(params, function(err, data){
+                 if(err){
+                     console.log('error in callback');
+                     console.log(err);
+                 }
+                 console.log('success');
+                 console.log(data);
+                 res.send(JSON.stringify(fileName));
+             })
+         })
      })
     req.pipe(busboy);
 })

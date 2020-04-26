@@ -49,13 +49,13 @@ router.get("/profPics", function(req, res, next){
 
 router.get("/allChats", function(req, res, next){
 
-    Chat.find({users: req.session.user._id} , '_id last_message seeners users', function(err, chats){
+    Chat.find({users: req.session.user._id} , '_id last_message name seeners users', function(err, chats){
         var userMap = {}
         User.find({}, function (err, users) {
             users.forEach((user)=>{
             userMap[user._id] = user.user;
             })
-            let out = chats.map((chat)=>({_id: chat._id, seen: (chat.seeners!==undefined ? chat.seeners.includes(req.session.user._id) : false),
+            let out = chats.map((chat)=>({_id: chat._id, name: chat.name, seen: (chat.seeners!==undefined ? chat.seeners.includes(req.session.user._id) : false),
                                     last_message: chat["last_message"] ? {sender: userMap[chat["last_message"].sender]
                                                                         , content: chat["last_message"].content,
                                                                         time: chat["last_message"].time} : undefined
@@ -149,6 +149,18 @@ router.post("/addSeener", function(req, res, next){
         }
         else{
             res.send('success');
+        }
+    })
+})
+
+
+router.post("/setChatName", function(req, res, next){
+    Chat.findOneAndUpdate({_id:req.body._id}, {name:req.body.name}, function(err, chat){
+        if(err){
+            res.send(JSON.stringify(err))
+        }
+        else{
+            res.send(JSON.stringify('success'));
         }
     })
 })
